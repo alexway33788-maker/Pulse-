@@ -471,7 +471,7 @@ function errText(e){
 }
 function isSetupErr(e){
   var m=((e&&e.message)||'')+' '+((e&&e.code)||'');
-  return /PGRST20[0-9]|42P01|schema cache|Could not find the (table|function)|relation .* does not exist/i.test(m);
+  return /PGRST202|PGRST205|42P01|Could not find the (table|function)|relation .* does not exist/i.test(m);
 }
 function handleErr(e){
   if(isSetupErr(e)){showSetup(e);return}
@@ -555,7 +555,7 @@ function friendBtn(id){
 }
 
 /* ---------- посты ---------- */
-var PSEL='id,user_id,kind,body,media_path,media_kind,media_flt,ov,emoji,created_at,profile:profiles('+PF+'),likes(count),comments(count)';
+var PSEL='id,user_id,kind,body,media_path,media_kind,media_flt,ov,emoji,created_at,profile:profiles!user_id('+PF+'),likes(count),comments(count)';
 function norm(r){
   if(r.profile)D.P[r.profile.id]=r.profile;
   return {id:r.id,u:r.user_id,kind:r.kind,t:r.body||'',time:ago(r.created_at),path:r.media_path,
@@ -966,7 +966,7 @@ function confirmModal(text,act){
 }
 async function openComments(id,reelModal){
   if(D.C[id]===undefined){
-    try{D.C[id]=await rest('GET','comments?select=id,body,created_at,user_id,profile:profiles('+PF+')&post_id=eq.'+id+'&order=created_at.asc&limit=100');
+    try{D.C[id]=await rest('GET','comments?select=id,body,created_at,user_id,profile:profiles!user_id('+PF+')&post_id=eq.'+id+'&order=created_at.asc&limit=100');
       D.C[id].forEach(function(c){if(c.profile)D.P[c.profile.id]=c.profile})}
     catch(e){handleErr(e);D.C[id]=[]}
   }
