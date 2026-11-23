@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffd9e8">
+<title>Pulse — соцсеть</title>
+<!-- Inter подключается только как запасной шрифт для не-Apple устройств. На iPhone/Mac используется системный SF Pro. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --h:340; --blur:24px;
+  --acc:hsl(var(--h) 85% 62%);
+  --acc2:hsl(calc(var(--h) + 28) 92% 74%);
+  --acc-soft:hsl(var(--h) 100% 95%);
+  --ink:#2b1823; --muted:#92707f;
+  --glass:rgba(255,255,255,.50); --glass-strong:rgba(255,255,255,.78);
+  --stroke:rgba(255,255,255,.78); --line:rgba(190,110,145,.16);
+  --shadow:0 14px 44px -14px hsl(var(--h) 70% 50% / .35);
+  --bg1:#fff6fa; --bg2:#ffe3ef; --bg3:#fff;
+  --r:28px;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Inter,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+[data-theme=dark]{
+  --ink:#fdeef5; --muted:#c9a0b3;
+  --glass:rgba(66,30,48,.48); --glass-strong:rgba(86,40,62,.78);
+  --stroke:rgba(255,255,255,.16); --line:rgba(255,255,255,.10);
+  --acc-soft:hsl(var(--h) 35% 24%);
+  --bg1:#24101b; --bg2:#33162a; --bg3:#1a0b14;
+  --shadow:0 14px 44px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;color:var(--ink);
+  font:16px/1.5 var(--font);letter-spacing:-.011em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;font-optical-sizing:auto;
+  background:linear-gradient(160deg,var(--bg1),var(--bg2) 55%,var(--bg3));
+  background-attachment:fixed;overflow-x:hidden;transition:background .5s,color .3s;
+}
+h1,h2,h3,b,.logo{letter-spacing:-.022em}
+button,input,textarea,select{font:inherit;color:inherit;letter-spacing:inherit}
+button{cursor:pointer;border:0;background:none}
+body.inreels{overflow:hidden}
+.blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.75;animation:float 18s ease-in-out infinite}
+.blob.b1{width:46vmax;height:46vmax;left:-12vmax;top:-10vmax;background:hsl(var(--h) 100% 82%)}
+.blob.b2{width:38vmax;height:38vmax;right:-10vmax;top:18vh;background:hsl(calc(var(--h) + 40) 100% 86%);animation-delay:-6s}
+.blob.b3{width:42vmax;height:42vmax;left:20vw;bottom:-18vmax;background:hsl(calc(var(--h) - 30) 100% 84%);animation-delay:-11s}
+[data-theme=dark] .blob{opacity:.28}
+.no-anim .blob{animation:none}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(5vmax,4vmax) scale(1.08)}66%{transform:translate(-4vmax,6vmax) scale(.94)}}
+
+.glass{
+  position:relative;background:var(--glass);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(180%);backdrop-filter:blur(var(--blur)) saturate(180%);
+  border:1px solid var(--stroke);border-radius:var(--r);
+  box-shadow:var(--shadow),inset 0 1.5px 0 rgba(255,255,255,.75),inset 0 -1px 0 rgba(255,255,255,.12);
+}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,0) 38%,rgba(255,255,255,0) 70%,rgba(255,255,255,.18));opacity:.7}
+[data-theme=dark] .glass::before{opacity:.18}
+
+#app{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:14px 14px 130px}
+.inreels #app{display:none}
+.compact #app{max-width:620px}
+
+.top{position:sticky;top:10px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:10px 12px 10px 18px;border-radius:999px;margin-bottom:16px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px}
+.logo i{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;box-shadow:0 4px 14px -2px var(--acc)}
+.logo i svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.logo b{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.top-r{display:flex;gap:8px;align-items:center}
+.ibtn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--glass-strong);border:1px solid var(--stroke);transition:transform .2s;flex:none}
+.ibtn:active{transform:scale(.9)}
+.ibtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.av{--s:44px;width:var(--s);height:var(--s);flex:none;border-radius:50%;display:grid;place-items:center;font-size:calc(var(--s)*.5);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),0 6px 16px -6px rgba(0,0,0,.25);position:relative}
+
+.filter{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px 14px 20px;margin-bottom:16px}
+.filter h2{margin:0;font-size:18px}
+.filter p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.sw{position:relative;width:56px;height:34px;flex:none;display:inline-block}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:2;width:100%;height:100%}
+.sw span{position:absolute;inset:0;border-radius:999px;background:rgba(140,100,120,.28);transition:.3s;box-shadow:inset 0 2px 5px rgba(0,0,0,.12)}
+.sw span::after{content:"";position:absolute;left:3px;top:3px;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 3px 9px rgba(0,0,0,.25);transition:.35s cubic-bezier(.3,1.5,.5,1)}
+.sw input:checked+span{background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.sw input:checked+span::after{transform:translateX(22px)}
+.sw input:active+span::after{width:34px}
+.sw input:checked:active+span::after{transform:translateX(16px)}
+
+.feed{display:flex;flex-direction:column;gap:16px}
+.post{padding:18px 18px 12px}
+.compact .post{padding:13px 14px 8px}
+.post header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.who{display:flex;align-items:center;gap:12px;text-align:left;flex:1;min-width:0}
+.who b{display:block;font-size:16px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who small{color:var(--muted);font-size:13px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--acc-soft);color:var(--acc);margin-left:6px;vertical-align:2px}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.post p{margin:0 0 12px;font-size:16.5px;white-space:pre-wrap;word-wrap:break-word}
+.media{height:210px;border-radius:22px;display:grid;place-items:center;font-size:76px;margin-bottom:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);position:relative;overflow:hidden}
+.compact .media{height:150px}
+.media::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 25% 15%,rgba(255,255,255,.55),transparent 55%)}
+.pm{position:relative;border-radius:22px;overflow:hidden;margin-bottom:12px;container-type:inline-size;background:rgba(0,0,0,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+.pm img,.pm video{display:block;width:100%;max-height:72vh;object-fit:contain}
+.ovt{position:absolute;left:6%;right:6%;transform:translateY(-50%);text-align:center;font-weight:800;text-shadow:0 2px 10px rgba(0,0,0,.5);pointer-events:none;line-height:1.15;word-wrap:break-word}
+.foot{display:flex;gap:4px;border-top:1px solid var(--line);padding-top:8px}
+.act{display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:99px;color:var(--muted);font-weight:600;font-size:14.5px;transition:.2s}
+.act:hover{background:var(--acc-soft);color:var(--acc)}
+.act svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.act.liked{color:var(--acc)}
+.act.liked svg{fill:var(--acc);animation:pop .4s}
+@keyframes pop{40%{transform:scale(1.35)}}
+.comments{margin-top:6px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.cm{display:flex;gap:10px;font-size:14.5px}
+.cm div{background:var(--glass-strong);padding:8px 13px;border-radius:18px;border:1px solid var(--stroke)}
+.cm b{font-size:13px}
+.cform{display:flex;gap:8px;margin-bottom:6px}
+input.t,textarea.t,select.t{width:100%;padding:12px 16px;border-radius:18px;border:1px solid var(--stroke);background:var(--glass-strong);outline:none;transition:.2s}
+input.t:focus,textarea.t:focus{box-shadow:0 0 0 3px hsl(var(--h) 90% 70%/.4)}
+textarea.t{resize:vertical;min-height:100px}
+
+.chip{padding:7px 13px;border-radius:99px;font-weight:650;font-size:13.5px;background:var(--glass-strong);border:1px solid var(--stroke);transition:.2s;white-space:nowrap;box-shadow:0 3px 10px -4px rgba(0,0,0,.15)}
+.chip:hover{transform:translateY(-1px)}
+.chip:active{transform:scale(.95)}
+.chip:disabled{opacity:.5;cursor:default;transform:none}
+.chip.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent;box-shadow:0 6px 16px -4px var(--acc)}
+.chip.ok{color:var(--acc)}
+.chip.danger{color:#e0305a}
+.btn{padding:12px 22px;border-radius:99px;font-weight:700;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 8px 22px -6px var(--acc);transition:.2s}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.ghost{background:var(--glass-strong);color:var(--ink);box-shadow:none;border:1px solid var(--stroke)}
+.lnk{color:var(--acc);font-weight:700;text-decoration:underline}
+
+.empty{padding:40px 24px;text-align:center;color:var(--muted)}
+.empty big{display:block;font-size:46px;margin-bottom:8px}
+
+.dock{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:flex;gap:2px;padding:7px;border-radius:999px;max-width:calc(100vw - 16px)}
+.inchat .dock{display:none}
+.dock button{position:relative;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:99px;font-weight:700;color:var(--muted);transition:.3s}
+.dock button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.dock button.on{background:var(--glass-strong);color:var(--acc);box-shadow:0 4px 14px -4px var(--acc),inset 0 1px 0 #fff}
+.dock button span.l{font-size:14.5px}
+.dock .dot{position:absolute;top:4px;right:6px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--acc);color:#fff;font-size:11px;display:grid;place-items:center;border:2px solid #fff}
+.fab{position:fixed;right:max(16px,calc(50% - 340px));bottom:calc(100px + env(safe-area-inset-bottom));z-index:29;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 12px 28px -6px var(--acc);transition:.25s}
+.fab:hover{transform:scale(1.08) rotate(90deg)}
+.fab svg{width:26px;height:26px;stroke:#fff;stroke-width:2.6;fill:none;stroke-linecap:round}
+
+.pcard{overflow:hidden;margin-bottom:16px}
+.cover{height:130px;position:relative}
+.pbody{padding:0 20px 20px;margin-top:-44px;position:relative}
+.pbody .av{--s:92px;box-shadow:0 0 0 4px rgba(255,255,255,.85),0 10px 24px -8px rgba(0,0,0,.3)}
+.pbody h1{margin:10px 0 0;font-size:26px;line-height:1.2}
+.pbody .h{color:var(--muted)}
+.pbody p{margin:8px 0 14px}
+.stats{display:flex;gap:10px}
+.stat{flex:1;text-align:center;padding:10px 4px;border-radius:20px;background:var(--glass-strong);border:1px solid var(--stroke)}
+.stat b{display:block;font-size:20px}
+.stat small{color:var(--muted);font-size:12.5px}
+.tabs{display:flex;gap:4px;padding:5px;border-radius:99px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1;padding:10px 14px;border-radius:99px;font-weight:650;font-size:14px;color:var(--muted);white-space:nowrap;transition:.25s}
+.tabs button.on{background:var(--glass-strong);color:var(--acc);box-shadow:0 3px 10px -3px var(--acc)}
+.tabs i{font-style:normal;background:var(--acc);color:#fff;border-radius:99px;font-size:11px;padding:1px 7px;margin-left:5px}
+.list{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:24px}
+.row .who{flex:1}
+h3.sec{margin:18px 4px 10px;font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+
+.sgroup{padding:6px 18px;margin-bottom:16px}
+.sgroup>h3{margin:14px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--acc)}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:0}
+.srow b{display:block;font-size:15.5px}
+.srow small{color:var(--muted);font-size:13px;display:block;word-break:break-all}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.swatch{width:30px;height:30px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:.2s}
+.swatch.on{transform:scale(1.2);box-shadow:0 0 0 2px var(--ink)}
+.seg{display:flex;padding:3px;border-radius:99px;background:rgba(150,100,125,.15)}
+.seg button{padding:6px 13px;border-radius:99px;font-size:13.5px;font-weight:650;color:var(--muted)}
+.seg button.on{background:#fff;color:#c2336b;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+[data-theme=dark] .seg button.on{background:var(--glass-strong);color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;width:150px;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--acc2));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border:0;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+input[type=range].full{width:100%}
+
+.editor{padding:20px;display:flex;flex-direction:column;gap:14px}
+.editor label,.lbl{font-size:13px;font-weight:700;color:var(--muted);display:block;margin:0 0 6px 4px}
+.emojis{display:flex;flex-wrap:wrap;gap:8px}
+.emojis button{min-width:44px;height:44px;padding:0 10px;border-radius:16px;font-size:22px;background:var(--glass-strong);border:1px solid var(--stroke);transition:.2s}
+.emojis button.txt{font-size:13px;font-weight:650}
+.emojis button.on{box-shadow:0 0 0 2.5px var(--acc);transform:scale(1.08)}
+.hues{display:flex;flex-wrap:wrap;gap:10px}
+.hues button{width:42px;height:42px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.2);transition:.2s}
+.hues button.on{transform:scale(1.15);box-shadow:0 0 0 2.5px var(--ink)}
+.mrow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+
+.ov{position:fixed;inset:0;z-index:50;display:grid;place-items:end center;background:rgba(60,20,40,.28);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fade .25s}
+.ov.ed{z-index:60;background:rgba(60,20,40,.45)}
+.ov.top{z-index:150}
+@keyframes fade{from{opacity:0}}
+.sheet{width:min(560px,100%);max-height:92vh;overflow:auto;padding:20px;border-radius:32px 32px 0 0;animation:up .4s cubic-bezier(.2,1,.3,1);background:var(--glass-strong)}
+.sheet.wide{width:min(640px,100%)}
+@keyframes up{from{transform:translateY(60px);opacity:0}}
+.sheet .x{position:absolute;right:14px;top:14px;z-index:2}
+@media(min-width:700px){.ov{place-items:center;padding:20px}.sheet{border-radius:32px}}
+.toasts{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(92vw,420px)}
+.toast{padding:12px 20px;border-radius:99px;font-weight:600;font-size:14.5px;animation:drop .4s cubic-bezier(.2,1.2,.3,1);background:var(--glass-strong);text-align:center}
+@keyframes drop{from{transform:translateY(-30px) scale(.9);opacity:0}}
+.enter{animation:enter .5s cubic-bezier(.2,1,.3,1) both}
+@keyframes enter{from{opacity:0;transform:translateY(16px)}}
+.no-anim *,.no-anim *::before{animation-duration:.01ms!important}
+.hint{color:var(--muted);font-size:13px;margin:6px 4px 0}
+
+.sbar{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 18px;border-radius:999px;margin-bottom:14px}
+.sbar svg{width:22px;height:22px;stroke:var(--muted);fill:none;stroke-width:2.2;stroke-linecap:round;flex:none}
+.sbar input{flex:1;border:0;background:none;outline:none;padding:10px 4px;font-size:17px;min-width:0}
+.sbar input::placeholder{color:var(--muted)}
+.prow{padding:12px 14px;border-radius:24px;display:flex;flex-direction:column;gap:10px}
+.prow .bio{color:var(--muted);font-size:13.5px;margin:-4px 0 0 58px}
+
+/* Reels */
+#reels{display:none;position:fixed;inset:0;z-index:5}
+.inreels #reels{display:block}
+.rscroll{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain}
+.rscroll::-webkit-scrollbar{display:none}
+.reel{height:100vh;height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;display:flex;justify-content:center;align-items:center}
+.rframe{position:relative;height:100%;aspect-ratio:9/16;max-width:100%;overflow:hidden;background:#1a0b14;container-type:inline-size;color:#fff;user-select:none}
+@media(min-width:700px){.rframe{height:calc(100% - 24px);border-radius:34px;box-shadow:0 30px 80px -20px rgba(120,20,70,.5)}}
+.rbg{position:absolute;inset:0;background:linear-gradient(160deg,var(--a),var(--b),var(--a));background-size:220% 220%;animation:bgmove 9s ease-in-out infinite}
+@keyframes bgmove{0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
+.remoji{position:absolute;left:50%;top:36%;font-size:34cqw;transform:translate(-50%,-50%);animation:bob 3.2s ease-in-out infinite;filter:drop-shadow(0 12px 24px rgba(0,0,0,.25))}
+@keyframes bob{0%,100%{transform:translate(-50%,-50%) rotate(-4deg)}50%{transform:translate(-50%,-56%) rotate(5deg)}}
+.rmedia{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.kb{animation:kb 12s ease-in-out infinite alternate}
+@keyframes kb{to{transform:scale(1.12)}}
+.reel:not(.active) .anim,.reel.paused .anim{animation-play-state:paused}
+.rshade{position:absolute;inset:0;background:linear-gradient(to top,rgba(30,5,20,.75),rgba(30,5,20,0) 45%,rgba(30,5,20,.25));pointer-events:none}
+.rprog{position:absolute;left:14px;right:14px;top:14px;height:3px;background:rgba(255,255,255,.35);border-radius:3px;overflow:hidden;z-index:2}
+.rprog i{display:block;height:100%;width:0;background:#fff;animation:prog 10s linear infinite}
+@keyframes prog{to{width:100%}}
+.rinfo{position:absolute;left:16px;right:84px;bottom:112px;z-index:2;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.rinfo b{font-size:16.5px;display:block}
+.rinfo span{display:block;font-size:14.5px;margin-top:4px;line-height:1.35;white-space:pre-wrap}
+.ract{position:absolute;right:10px;bottom:112px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:14px}
+.ra{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12.5px;font-weight:700;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.ra i{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.4);transition:.2s}
+.ra:active i{transform:scale(.88)}
+.ra svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.ra.liked svg{fill:#ff4d8d;stroke:#ff4d8d;animation:pop .4s}
+.rav{position:relative;margin-bottom:8px}
+.rav .plus{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;font-weight:800;font-size:15px;line-height:20px;border:2px solid #fff}
+.rtop{position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:8px;padding:6px;border-radius:99px}
+.rtop .seg{background:none;padding:0}
+.rtop .seg button{color:var(--muted);padding:8px 16px}
+.rtop .seg button.on{background:var(--glass-strong);color:var(--acc)}
+.rtop .ibtn{width:38px;height:38px}
+.hpop{position:absolute;font-size:90px;transform:translate(-50%,-50%);animation:hp .8s ease-out forwards;pointer-events:none;z-index:5}
+@keyframes hp{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}30%{transform:translate(-50%,-60%) scale(1.1);opacity:1}100%{transform:translate(-50%,-120%) scale(1);opacity:0}}
+.pause{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);font-size:60px;opacity:0;pointer-events:none;transition:.2s;z-index:4}
+.reel.paused .pause{opacity:.9}
+
+/* Чаты */
+.chead{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;margin-bottom:14px;position:sticky;top:10px;z-index:20}
+.chead .who{gap:10px}
+.crow{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:24px;width:100%;text-align:left}
+.crow .m{flex:1;min-width:0}
+.crow b{display:block;font-size:16px}
+.crow small{display:block;color:var(--muted);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .tm{color:var(--muted);font-size:12px;flex:none}
+.msgs{display:flex;flex-direction:column;gap:6px;padding-bottom:84px;min-height:46vh}
+.bub{max-width:78%;padding:9px 14px;border-radius:20px;font-size:15.5px;line-height:1.4;word-wrap:break-word;white-space:pre-wrap}
+.bub.me{align-self:flex-end;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-bottom-right-radius:6px;box-shadow:0 6px 16px -8px var(--acc)}
+.bub.o{align-self:flex-start;background:var(--glass-strong);border:1px solid var(--stroke);border-bottom-left-radius:6px}
+.bub small{display:block;font-size:11px;opacity:.7;margin-top:2px;text-align:right}
+.bub .sn{font-size:12px;font-weight:700;color:var(--acc);display:block;margin-bottom:2px}
+.cinput{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));width:min(652px,calc(100% - 24px));z-index:30;display:none;gap:8px;padding:8px;border-radius:999px}
+.inchat .cinput{display:flex}
+.cinput input{flex:1;border:0;background:none;outline:none;padding:8px 14px;font-size:16px;min-width:0}
+.pick{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:20px;background:var(--glass-strong);border:1px solid var(--stroke);width:100%;text-align:left}
+.pick input{width:22px;height:22px;accent-color:hsl(var(--h) 85% 62%)}
+
+.edprev{position:sticky;top:-12px;z-index:3;display:grid;place-items:center;margin:4px 0 12px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);background:repeating-conic-gradient(rgba(0,0,0,.06) 0 25%,transparent 0 50%) 0 0/20px 20px;border-radius:20px;padding:8px}
+.edprev canvas{max-width:100%;max-height:44vh;border-radius:12px;touch-action:none;cursor:grab;box-shadow:0 8px 28px -10px rgba(0,0,0,.4)}
+.edprev canvas:active{cursor:grabbing}
+.edrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.tcol{width:28px;height:28px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.tcol.on{box-shadow:0 0 0 2px var(--ink)}
+.stk{font-size:22px;width:40px;height:40px;border-radius:14px;background:var(--glass-strong);border:1px solid var(--stroke)}
+.edbtns{display:flex;gap:10px;margin-top:6px;position:sticky;bottom:-20px;padding:10px 0 0}
+.dprev{max-width:340px;margin:10px auto 0}
+
+#auth{display:none;position:fixed;inset:0;z-index:100;place-items:center;padding:16px;overflow:auto;background:rgba(255,238,246,.55);-webkit-backdrop-filter:blur(34px) saturate(160%);backdrop-filter:blur(34px) saturate(160%)}
+[data-theme=dark] #auth{background:rgba(30,10,22,.6)}
+.acard{width:min(430px,100%);padding:26px 24px;margin:auto}
+.acard h2{margin:12px 0 4px;font-size:25px}
+.acard p{margin:0 0 14px;color:var(--muted)}
+.acard form{display:flex;flex-direction:column;gap:12px}
+.pw{position:relative}
+.pw button{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;padding:4px 8px}
+.err{color:#e0305a;font-size:13.5px;min-height:18px;margin:-4px 4px 0}
+.bar{height:6px;border-radius:99px;background:rgba(150,100,125,.2);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;transition:.3s}
+input.code{text-align:center;font-size:26px;letter-spacing:.4em;font-weight:700}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.acard .seg{width:100%;margin-bottom:6px}.acard .seg button{flex:1}
+.acard .seg button.on{background:#fff}
+.legalnote{margin-top:18px;text-align:center;font-size:12.5px;line-height:1.5;color:var(--muted)}
+.legalnote .lnk{font-size:inherit;font-weight:600;text-decoration:underline}
+.legal .seg{margin:0 40px 14px 0;overflow-x:auto}
+.legal .seg button{flex:1;white-space:nowrap}
+.lbody h2{margin:0 0 4px;font-size:22px}
+.lbody h3{margin:18px 0 6px;font-size:16px}
+.lbody p,.lbody li{font-size:14.5px;line-height:1.55;margin:0 0 8px}
+.lbody ul{margin:0 0 8px;padding-left:20px}
+.lbody .dt{color:var(--muted);font-size:13px;margin-bottom:10px}
+.setup{max-width:560px;margin:40px auto;padding:26px}
+.setup code{background:var(--acc-soft);padding:2px 7px;border-radius:8px;font-size:13.5px}
+
+@media(max-width:520px){
+  .dock button{padding:12px 13px}.dock button span.l{display:none}.dock button.on span.l{display:inline}
+  .acts .chip{padding:6px 10px;font-size:12.5px}
+  .post header{flex-wrap:wrap}.acts{width:100%;justify-content:flex-start}
+  input[type=range]{width:110px}
+  .rtop .seg button{padding:8px 12px;font-size:13.5px}
+}
+@media(prefers-reduced-motion:reduce){.blob{animation:none}}
+</style>
+</head>
+<body>
+<div class="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div id="app">
+  <div class="top glass">
+    <div class="logo"><i><svg viewBox="0 0 24 24"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg></i><b>Pulse</b></div>
+    <div class="top-r"><button class="ibtn" data-a="nav" data-v="profile" title="Мой профиль" id="topAv"></button></div>
+  </div>
+  <main id="view"></main>
+</div>
+<div id="reels"></div>
+<button class="fab" id="fab" data-a="newpost" title="Новый пост"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+<nav class="dock glass" id="dock"></nav>
+<form class="cinput glass" id="cinput" data-form="msg" autocomplete="off"><input name="t" placeholder="Сообщение…" maxlength="2000"><button class="ibtn" type="submit" style="background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0"></button></form>
+<div id="modal"></div>
+<div id="modal2"></div>
+<div id="auth"></div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= НАСТРОЙКИ ПОДКЛЮЧЕНИЯ ================= */
+var SB_URL='https://yixobcoimhdhuxjbpwvv.supabase.co';
+var SB_KEY='sb_publishable_yggY5qBBClYxs-dnP_7oQQ_fSDsEU6N';   // публичный ключ: он и должен быть виден в коде, защита — в правилах базы (RLS)
+/* ========================================================== */
+
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var clamp=function(v,a,b){return Math.max(a,Math.min(b,v))};
+var FONT='-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,"Segoe UI",Roboto,system-ui,sans-serif';
+var CFGKEY='pulse.settings',SESSKEY='pulse.session';
+
+/* ---------- локальные настройки (тема и т.п.) ---------- */
+var CFG=(function(){
+  var d={S:{hue:340,theme:'light',blur:24,compact:false,anim:true,hideLikes:false,rememberFilter:true,tips:true},filterOn:true,reelsF:'all'};
+  try{var p=JSON.parse(localStorage.getItem(CFGKEY)||'null');if(p){for(var k in p){if(k==='S'){for(var j in p.S)d.S[j]=p.S[j]}else d[k]=p[k]}}}catch(e){}
+  return d;
+})();
+var S=CFG.S;
+function saveCfg(){try{localStorage.setItem(CFGKEY,JSON.stringify(CFG))}catch(e){}}
+
+var EMOJIS=['💖','🌸','🦋','🍓','✨','🌙','☁️','🎀','🐱','🧸','🌷','🍒'];
+var HUES=[340,320,300,280,260,215,190,160,20,45];
+var FILTERS=[
+ ['none','Оригинал',''],
+ ['warm','Тёплый','sepia(.35) saturate(1.3) brightness(1.05)'],
+ ['rose','Розовый','sepia(.25) hue-rotate(-35deg) saturate(1.6) brightness(1.06)'],
+ ['bw','Ч/Б','grayscale(1) contrast(1.1)'],
+ ['vivid','Яркий','saturate(1.7) contrast(1.1)'],
+ ['film','Кино','sepia(.5) contrast(.95) brightness(.95) saturate(1.2)'],
+ ['fade','Матовый','contrast(.85) brightness(1.1) saturate(.9)']
+];
+var TCOLS=['#ffffff','#2b1823','#ff4d8d','#ffd54a','#6ee7b7','#7dd3fc'];
+function fltCss(id){for(var i=0;i<FILTERS.length;i++)if(FILTERS[i][0]===id)return FILTERS[i][2];return ''}
+
+/* ================= СЕССИЯ И API ================= */
+var sess=null;
+try{sess=JSON.parse(localStorage.getItem(SESSKEY)||'null')}catch(e){}
+function setSess(j){
+  if(!j||!j.access_token)return;
+  sess={access_token:j.access_token,refresh_token:j.refresh_token||(sess&&sess.refresh_token),expires_at:Math.floor(Date.now()/1000)+(j.expires_in||3600),user:j.user||(sess&&sess.user)};
+  try{localStorage.setItem(SESSKEY,JSON.stringify(sess))}catch(e){}
+}
+function clearSess(){sess=null;try{localStorage.removeItem(SESSKEY)}catch(e){}}
+function mkErr(j,status){
+  var e=new Error((j&&(j.msg||j.error_description||j.message||j.error))||('HTTP '+status));
+  e.code=j&&(j.error_code||j.code);e.status=status;e.details=j&&j.details;return e;
+}
+async function parse(r){var t=await r.text(),j=null;try{j=t?JSON.parse(t):null}catch(e){j=t?{message:t}:null}return j}
+async function authCall(path,body,method,token){
+  var h={apikey:SB_KEY,'Content-Type':'application/json'};if(token)h.Authorization='Bearer '+token;
+  var r;try{r=await fetch(SB_URL+'/auth/v1'+path,{method:method||'POST',headers:h,body:body?JSON.stringify(body):undefined})}catch(e){throw new Error('Failed to fetch')}
+  var j=await parse(r);if(!r.ok)throw mkErr(j,r.status);return j;
+}
+var refreshing=null;
+async function refreshSess(){
+  if(!sess||!sess.refresh_token)throw new Error('no_session');
+  if(!refreshing){
+    refreshing=authCall('/token?grant_type=refresh_token',{refresh_token:sess.refresh_token}).then(function(j){setSess(j)}).finally(function(){refreshing=null});
+  }
+  return refreshing;
+}
+async function authedFetch(url,opt){
+  var now=Math.floor(Date.now()/1000);
+  if(sess&&sess.expires_at-60<now){try{await refreshSess()}catch(e){if(e.status===400||e.status===401||e.message==='no_session'){forceLogout();throw new Error('Сессия истекла — войдите снова')}throw e}}
+  function go(){
+    var o=Object.assign({},opt);o.headers=Object.assign({apikey:SB_KEY},opt.headers||{});
+    if(sess)o.headers.Authorization='Bearer '+sess.access_token;
+    return fetch(url,o);
+  }
+  var r;try{r=await go()}catch(e){throw new Error('Failed to fetch')}
+  if(r.status===401&&sess){
+    try{await refreshSess();r=await go()}catch(e){forceLogout();throw new Error('Сессия истекла — войдите снова')}
+  }
+  return r;
+}
+async function rest(method,path,body,prefer){
+  var h={};if(body!==undefined)h['Content-Type']='application/json';if(prefer)h.Prefer=prefer;
+  var r=await authedFetch(SB_URL+'/rest/v1/'+path,{method:method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});
+  var j=await parse(r);if(!r.ok)throw mkErr(j,r.status);return j;
+}
+function mediaUrl(p){return SB_URL+'/storage/v1/object/public/media/'+p.split('/').map(encodeURIComponent).join('/')}
+function pathFromUrl(u){var pre=SB_URL+'/storage/v1/object/public/media/';return u&&u.indexOf(pre)===0?decodeURIComponent(u.slice(pre.length)):null}
+async function upload(blob,ext,prefix){
+  var path=sess.user.id+'/'+(prefix||'')+Date.now().toString(36)+Math.random().toString(36).slice(2,6)+'.'+ext;
+  var r=await authedFetch(SB_URL+'/storage/v1/object/media/'+path,{method:'POST',headers:{'Content-Type':blob.type||'application/octet-stream','x-upsert':'false'},body:blob});
+  var j=await parse(r);if(!r.ok)throw mkErr(j,r.status);
+  return path;
+}
+function removeObject(path){
+  if(!path||!sess)return;
+  authedFetch(SB_URL+'/storage/v1/object/media/'+path,{method:'DELETE',headers:{}}).catch(function(){});
+}
+function extOf(b){var t=(b.type||'').split('/')[1]||'mp4';return t==='quicktime'?'mov':t.replace(/[^a-z0-9]/gi,'')||'mp4'}
+
+function errText(e){
+  var m=((e&&e.message)||'')+' '+((e&&e.code)||'');
+  var map=[
+   [/Invalid login credentials/i,'Неверное имя пользователя или пароль'],
+   [/already registered|already been registered|user_already_exists/i,'Это имя пользователя уже занято'],
+   [/rate limit|over_email_send_rate_limit|over_request_rate_limit|too many|security purposes/i,'Слишком много попыток или писем — подождите немного и повторите'],
+   [/Error sending|sending (confirmation|magic|recovery)|unexpected_failure.*mail|smtp/i,'Не удалось отправить письмо — проверьте настройку почты в Supabase'],
+   [/expired|otp_expired|invalid.*(token|otp)/i,'Неверный или просроченный код'],
+   [/Password should be at least|weak_password/i,'Пароль слишком простой — минимум 6 символов, лучше 8+'],
+   [/duplicate key|23505/i,'Это имя уже занято'],
+   [/Failed to fetch|NetworkError|Load failed/i,'Нет соединения с сервером'],
+   [/row-level security|42501/i,'Нет прав на это действие'],
+   [/not_friends/i,'Писать можно только друзьям'],
+   [/Email not confirmed|email_not_confirmed/i,'Почта не подтверждена'],
+   [/signup.*disabled|email_provider_disabled/i,'Регистрация по почте отключена в Supabase']
+  ];
+  for(var i=0;i<map.length;i++)if(map[i][0].test(m))return map[i][1];
+  return (e&&e.message)||'Что-то пошло не так';
+}
+function isSetupErr(e){
+  var m=((e&&e.message)||'')+' '+((e&&e.code)||'');
+  return /PGRST202|PGRST205|42P01|Could not find the (table|function)|relation .* does not exist/i.test(m);
+}
+function handleErr(e){
+  if(isSetupErr(e)){showSetup(e);return}
+  toast(errText(e));
+}
+function safe(fn){return async function(){try{return await fn.apply(this,arguments)}catch(e){handleErr(e)}}}
+
+/* ================= ДАННЫЕ ================= */
+var D={me:null,P:{},following:[],reqs:[],liked:[],posts:[],reels:[],C:{},chats:[],loaded:{}};
+var view='feed',ptab='requests',openC={},sq='',SR={list:[],loading:false},reelMuted=true,io=null,draft=null,edOpen=false,CH=null,ED=null,timers=[],sT=null;
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+
+function has(a,id){return a.indexOf(id)>-1}
+function add(a,id){if(!has(a,id))a.push(id)}
+function del(a,id){var i=a.indexOf(id);if(i>-1)a.splice(i,1)}
+function fmt(n){return n>=1000?(Math.round(n/100)/10).toString().replace('.',',')+'K':String(n)}
+function ago(iso){
+  var s=(Date.now()-new Date(iso).getTime())/1000;
+  if(s<60)return 'только что';if(s<3600)return Math.floor(s/60)+' мин';if(s<86400)return Math.floor(s/3600)+' ч';if(s<172800)return 'вчера';
+  return new Date(iso).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+}
+function hm(iso){return new Date(iso).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}
+function hashHue(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360;return h}
+function prof(id){return D.P[id]||{id:id,name:'Пользователь',handle:'user',emoji:'👤',hue:340,bio:'',photo_url:null}}
+function mine(id){return D.me&&id===D.me.id}
+function grad(h){return 'linear-gradient(135deg,hsl('+h+' 95% 84%),hsl('+((h+40)%360)+' 90% 70%))'}
+function av(u,s){
+  var ph=u.photo_url;
+  return '<span class="av" style="--s:'+(s||44)+'px;background:'+(ph?"url('"+esc(ph)+"') center/cover":grad(u.hue))+'">'+(ph?'':esc(u.emoji||'👤'))+'</span>';
+}
+var PF='id,handle,name,bio,emoji,hue,cover,photo_url';
+async function ensureProfiles(ids){
+  var need=[];ids.forEach(function(i){if(i&&!D.P[i]&&need.indexOf(i)<0)need.push(i)});
+  if(!need.length)return;
+  var rows=await rest('GET','profiles?select='+PF+'&id=in.('+need.join(',')+')');
+  rows.forEach(function(p){D.P[p.id]=p});
+}
+function icon(n){
+  var p={
+    home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+    gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+    heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>',
+    chat:'<path d="M21 11.5a8.4 8.4 0 0 1-12.2 7.5L3 21l2-5.5A8.5 8.5 0 1 1 21 11.5z"/>',
+    share:'<path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/>',
+    x:'<path d="M18 6L6 18M6 6l12 12"/>',
+    send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>',
+    reels:'<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M3 9h18M9 3l3 6M15 3l3 6"/><path d="M10 13.5v4l3.5-2z"/>',
+    search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+    plus:'<path d="M12 5v14M5 12h14"/>',
+    dots:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+    vol:'<path d="M11 5L6 9H3v6h3l5 4zM16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/>',
+    mute:'<path d="M11 5L6 9H3v6h3l5 4zM22 9l-6 6M16 9l6 6"/>',
+    back:'<path d="M15 18l-6-6 6-6"/>',
+    chats:'<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>'
+  };
+  return '<svg viewBox="0 0 24 24">'+p[n]+'</svg>';
+}
+function toast(t){
+  var d=document.createElement('div');d.className='toast glass';d.textContent=t;
+  $('#toasts').appendChild(d);
+  setTimeout(function(){d.style.transition='.4s';d.style.opacity=0;d.style.transform='translateY(-20px)'},2800);
+  setTimeout(function(){d.remove()},3300);
+}
+
+/* ---------- друзья / подписки ---------- */
+function reqWith(id){for(var i=0;i<D.reqs.length;i++){var r=D.reqs[i];if(r.from_id===id||r.to_id===id)return r}return null}
+function fState(id){var r=reqWith(id);if(!r)return 'none';if(r.status==='accepted')return 'friend';return r.from_id===D.me.id?'sent':'incoming'}
+function friendIds(){return D.reqs.filter(function(r){return r.status==='accepted'}).map(function(r){return r.from_id===D.me.id?r.to_id:r.from_id})}
+function followBtn(id){
+  return has(D.following,id)
+   ?'<button class="chip ok" data-a="follow" data-u="'+id+'">✓ Вы подписаны</button>'
+   :'<button class="chip pri" data-a="follow" data-u="'+id+'">Подписаться</button>';
+}
+function friendBtn(id){
+  var s=fState(id);
+  if(s==='friend')return '<button class="chip" data-a="msgto" data-u="'+id+'">💬 Написать</button><button class="chip ok" data-a="unfriend" data-u="'+id+'">💞 Друзья</button>';
+  if(s==='sent')return '<button class="chip" data-a="cancelreq" data-u="'+id+'">⏳ Заявка отправлена</button>';
+  if(s==='incoming')return '<button class="chip pri" data-a="accept" data-u="'+id+'">Принять заявку</button>';
+  return '<button class="chip" data-a="friend" data-u="'+id+'">＋ В друзья</button>';
+}
+
+/* ---------- посты ---------- */
+var PSEL='id,user_id,kind,body,media_path,media_kind,media_flt,ov,emoji,created_at,profile:profiles!user_id('+PF+'),likes(count),comments(count)';
+function norm(r){
+  if(r.profile)D.P[r.profile.id]=r.profile;
+  return {id:r.id,u:r.user_id,kind:r.kind,t:r.body||'',time:ago(r.created_at),path:r.media_path,
+    mm:r.media_path?{k:r.media_kind,url:mediaUrl(r.media_path),flt:r.media_flt||'none',ov:r.ov||null}:null,
+    m:r.emoji?{e:r.emoji}:null,
+    l:(r.likes&&r.likes[0]&&r.likes[0].count)||0,c:(r.comments&&r.comments[0]&&r.comments[0].count)||0};
+}
+async function loadPosts(kind){
+  var rows=await rest('GET','posts?select='+PSEL+'&kind=eq.'+kind+'&order=created_at.desc&limit=80');
+  return rows.map(norm);
+}
+function findItem(id){
+  var all=D.posts.concat(D.reels);
+  for(var i=0;i<all.length;i++)if(all[i].id===id)return all[i];
+  return null;
+}
+function likeCount(p){return p.l}
+function ovHTML(ov){
+  if(!ov||!ov.t)return '';
+  return '<div class="ovt" style="top:'+(ov.y*100)+'%;color:'+esc(ov.c)+';font-size:'+(ov.s*100)+'cqw">'+esc(ov.t)+'</div>';
+}
+function mediaHTML(mm){
+  if(mm.k==='img')return '<div class="pm"><img src="'+esc(mm.url)+'" alt="" loading="lazy"></div>';
+  return '<div class="pm"><video src="'+esc(mm.url)+'" controls playsinline preload="metadata" style="filter:'+fltCss(mm.flt)+'"></video>'+ovHTML(mm.ov)+'</div>';
+}
+function pickFile(accept,cb){
+  var i=document.createElement('input');i.type='file';i.accept=accept;i.style.display='none';
+  i.onchange=function(){var f=i.files&&i.files[0];i.remove();if(f)cb(f)};
+  document.body.appendChild(i);i.click();
+}
+function normImg(file,max){
+  return new Promise(function(res,rej){
+    var u=URL.createObjectURL(file),im=new Image();
+    im.onload=function(){
+      var s=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
+      var c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.naturalWidth*s));c.height=Math.max(1,Math.round(im.naturalHeight*s));
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);
+      c.toBlob(function(b){b?res(b):rej()},'image/jpeg',.9);
+    };
+    im.onerror=function(){URL.revokeObjectURL(u);rej()};
+    im.src=u;
+  });
+}
+
+/* ================= ЭКРАНЫ ================= */
+function postHTML(p){
+  var u=prof(p.u),own=mine(p.u),liked=has(D.liked,p.id),cs=D.C[p.id]||[],open=openC[p.id];
+  var h='<article class="glass post" data-id="'+p.id+'"><header>'+
+   '<button class="who" data-a="user" data-u="'+u.id+'">'+av(u,46)+
+   '<div style="min-width:0"><b>'+esc(u.name)+(fState(u.id)==='friend'?'<span class="badge">друг</span>':'')+'</b><small>@'+esc(u.handle)+' · '+p.time+'</small></div></button>';
+  if(!own)h+='<div class="acts">'+followBtn(u.id)+friendBtn(u.id)+'</div>';
+  else h+='<div class="acts"><button class="chip" data-a="editpost" data-p="'+p.id+'">✏️ Изменить</button><button class="chip danger" data-a="delpost" data-p="'+p.id+'">Удалить</button></div>';
+  h+='</header>';
+  if(p.t)h+='<p>'+esc(p.t)+'</p>';
+  if(p.mm)h+=mediaHTML(p.mm);
+  else if(p.m)h+='<div class="media" style="background:'+grad(u.hue)+'">'+esc(p.m.e)+'</div>';
+  h+='<div class="foot">'+
+   '<button class="act'+(liked?' liked':'')+'" data-a="like" data-p="'+p.id+'">'+icon('heart')+(S.hideLikes?'':p.l)+'</button>'+
+   '<button class="act" data-a="comments" data-p="'+p.id+'">'+icon('chat')+p.c+'</button>'+
+   '<button class="act" data-a="share" data-p="'+p.id+'" style="margin-left:auto">'+icon('share')+'</button></div>';
+  if(open){
+    h+='<div class="comments">';
+    if(D.C[p.id]===undefined)h+='<div class="hint">Загружаем…</div>';
+    cs.forEach(function(c){h+=commentHTML(c)});
+    h+='<form class="cform" data-form="comment" data-p="'+p.id+'"><input class="t" name="t" placeholder="Написать комментарий…" autocomplete="off" maxlength="500"><button class="ibtn" type="submit">'+icon('send')+'</button></form></div>';
+  }
+  return h+'</article>';
+}
+function commentHTML(c){var cu=prof(c.user_id);return '<div class="cm">'+av(cu,32)+'<div><b>'+esc(cu.name)+'</b><br>'+esc(c.body)+'</div></div>'}
+
+function feedBody(){
+  if(sq.trim())return searchRes();
+  var on=CFG.filterOn;
+  if(!D.loaded.posts)return '<div class="glass empty"><big>⏳</big>Загружаем ленту…</div>';
+  var list=D.posts.filter(function(p){return !mine(p.u)&&(on?has(D.following,p.u):!has(D.following,p.u))});
+  var h='<div class="glass filter"><div><h2>Подписки</h2><p>'+(on?'Показаны только те, на кого вы подписаны':'Показаны те, на кого вы не подписаны')+'</p></div>'+
+   '<label class="sw"><input type="checkbox" data-k="filterOn"'+(on?' checked':'')+'><span></span></label></div>';
+  if(S.tips&&!on)h+='<p class="hint" style="margin:-6px 4px 14px">Нажмите «Подписаться», чтобы человек переехал в вашу ленту подписок.</p>';
+  h+='<div class="feed">';
+  if(!list.length){
+    h+='<div class="glass empty"><big>'+(on?'🫧':'🌱')+'</big><b>'+(on?'Здесь пока тихо':'Пока нет новых постов')+'</b><br>'+(on?'Подпишитесь на кого-нибудь: выключите переключатель или найдите человека в строке поиска сверху.':'Когда другие люди опубликуют посты, они появятся здесь. Пригласите друзей в Pulse!')+'</div>';
+  } else list.forEach(function(p){h+=postHTML(p)});
+  return h+'</div>';
+}
+function feedView(){
+  return '<div class="glass sbar">'+icon('search')+'<input id="q" type="search" placeholder="Найти человека: имя или @ник" autocomplete="off" value="'+esc(sq)+'"></div><div id="fbody">'+feedBody()+'</div>';
+}
+function searchRes(){
+  var h='<h3 class="sec">'+(SR.loading&&!SR.list.length?'Ищем…':'Люди · '+SR.list.length)+'</h3><div class="list">';
+  if(!SR.loading&&!SR.list.length)h+='<div class="glass empty"><big>🔍</big>Никого не нашли. Попробуйте другое имя или @ник</div>';
+  SR.list.forEach(function(u){
+    h+='<div class="glass prow"><div style="display:flex;align-items:center;gap:12px"><button class="who" data-a="user" data-u="'+u.id+'">'+av(u,46)+'<div style="min-width:0"><b>'+esc(u.name)+(fState(u.id)==='friend'?'<span class="badge">друг</span>':'')+'</b><small>@'+esc(u.handle)+'</small></div></button></div>'+
+     (u.bio?'<div class="bio">'+esc(u.bio)+'</div>':'')+'<div class="acts" style="justify-content:flex-start;margin-left:58px">'+followBtn(u.id)+friendBtn(u.id)+'</div></div>';
+  });
+  return h+'</div>';
+}
+async function runSearch(){
+  var q=sq.trim().replace(/^@/,'').replace(/[,()*%\\"']/g,'');
+  if(!q){return}
+  SR.loading=true;
+  try{
+    var rows=await rest('GET','profiles?select='+PF+'&or=(name.ilike.*'+encodeURIComponent(q)+'*,handle.ilike.*'+encodeURIComponent(q)+'*)&id=neq.'+D.me.id+'&limit=20');
+    if(sq.trim().replace(/^@/,'').replace(/[,()*%\\"']/g,'')!==q)return;
+    rows.forEach(function(p){D.P[p.id]=p});SR.list=rows;
+  }catch(e){handleErr(e)}
+  SR.loading=false;
+  if(view==='feed'&&sq.trim()&&$('#fbody'))$('#fbody').innerHTML=searchRes();
+}
+
+function personRow(id,btns){
+  var u=prof(id);
+  return '<div class="glass row"><button class="who" data-a="user" data-u="'+id+'">'+av(u,46)+'<div style="min-width:0"><b>'+esc(u.name)+'</b><small>@'+esc(u.handle)+'</small></div></button><div class="acts">'+btns+'</div></div>';
+}
+function incoming(){return D.reqs.filter(function(r){return r.status==='pending'&&r.to_id===D.me.id})}
+function outgoing(){return D.reqs.filter(function(r){return r.status==='pending'&&r.from_id===D.me.id})}
+function myItems(list){return list.filter(function(p){return mine(p.u)})}
+function profileView(){
+  var m=D.me,nReq=incoming().length;
+  var h='<div class="glass pcard"><div class="cover" style="background:'+grad(m.cover)+'"></div><div class="pbody">'+av(m,92)+
+   '<h1>'+esc(m.name)+'</h1><div class="h">@'+esc(m.handle)+'</div><p>'+esc(m.bio)+'</p>'+
+   '<div class="stats"><div class="stat"><b>'+friendIds().length+'</b><small>друзей</small></div><div class="stat"><b>'+D.following.length+'</b><small>подписок</small></div><div class="stat"><b>'+(myItems(D.posts).length+myItems(D.reels).length)+'</b><small>публикаций</small></div></div></div></div>';
+  var tabs=[['requests','Заявки'],['friends','Друзья'],['subs','Подписки'],['posts','Посты'],['reels','Reels'],['look','Внешний вид']];
+  h+='<div class="glass tabs">'+tabs.map(function(t){return '<button class="'+(ptab===t[0]?'on':'')+'" data-a="ptab" data-t="'+t[0]+'">'+t[1]+(t[0]==='requests'&&nReq?'<i>'+nReq+'</i>':'')+'</button>'}).join('')+'</div>';
+  return h+'<div class="enter" id="ptab">'+profileTab()+'</div>';
+}
+function profileTab(){
+  var h='';
+  if(ptab==='requests'){
+    var inc=incoming(),out=outgoing();
+    h+='<h3 class="sec">Входящие · '+inc.length+'</h3><div class="list">';
+    if(!inc.length)h+='<div class="glass empty"><big>💌</big>Новых заявок нет</div>';
+    inc.forEach(function(r){h+=personRow(r.from_id,'<button class="chip pri" data-a="accept" data-u="'+r.from_id+'">Принять</button><button class="chip danger" data-a="decline" data-u="'+r.from_id+'">Отклонить</button>')});
+    h+='</div><h3 class="sec">Отправленные · '+out.length+'</h3><div class="list">';
+    if(!out.length)h+='<div class="glass empty" style="padding:24px">Вы пока никому не отправляли заявок</div>';
+    out.forEach(function(r){h+=personRow(r.to_id,'<button class="chip" data-a="cancelreq" data-u="'+r.to_id+'">Отменить</button>')});
+    return h+'</div>';
+  }
+  if(ptab==='friends'){
+    var fr=friendIds();
+    if(!fr.length)return '<div class="glass empty"><big>🫶</big>Пока нет друзей. Найдите человека через поиск в ленте и отправьте заявку!</div>';
+    fr.forEach(function(id){h+=personRow(id,'<button class="chip pri" data-a="msgto" data-u="'+id+'">💬</button><button class="chip danger" data-a="unfriend" data-u="'+id+'">Удалить</button>')});
+    return '<div class="list">'+h+'</div>';
+  }
+  if(ptab==='subs'){
+    if(!D.following.length)return '<div class="glass empty"><big>🌱</big>Вы ещё ни на кого не подписаны</div>';
+    D.following.forEach(function(id){h+=personRow(id,'<button class="chip" data-a="follow" data-u="'+id+'">Отписаться</button>')});
+    return '<div class="list">'+h+'</div>';
+  }
+  if(ptab==='posts'){
+    h='<button class="btn" data-a="newpost" style="width:100%;margin-bottom:14px">＋ Новый пост</button>';
+    var mp=myItems(D.posts);
+    if(!mp.length)return h+'<div class="glass empty"><big>📝</big>Вы ещё ничего не публиковали</div>';
+    h+='<div class="feed">';mp.forEach(function(p){h+=postHTML(p)});
+    return h+'</div>';
+  }
+  if(ptab==='reels'){
+    h='<button class="btn" data-a="newreel" style="width:100%;margin-bottom:14px">＋ Новый Reels</button>';
+    var mr=myItems(D.reels);
+    if(!mr.length)return h+'<div class="glass empty"><big>🎬</big>У вас пока нет Reels. Загрузите видео или фото!</div>';
+    h+='<div class="list">';
+    mr.forEach(function(r){
+      h+='<div class="glass row"><span class="av" style="--s:54px;border-radius:16px;background:'+grad(D.me.hue)+'">'+(r.mm&&r.mm.k==='vid'?'🎬':'🖼️')+'</span>'+
+       '<div class="who"><div style="min-width:0"><b>'+esc(r.t||'Без подписи')+'</b><small>♥ '+r.l+' · '+r.time+'</small></div></div>'+
+       '<div class="acts"><button class="chip" data-a="editreel" data-r="'+r.id+'">✏️</button><button class="chip danger" data-a="delreel" data-r="'+r.id+'">Удалить</button></div></div>';
+    });
+    return h+'</div>';
+  }
+  var e=ED||(ED={emoji:D.me.emoji,hue:D.me.hue,cover:D.me.cover});
+  h='<form class="glass editor" data-form="profile">'+
+   '<div style="display:flex;align-items:center;gap:14px"><div id="pvAv">'+av(Object.assign({},D.me,{emoji:e.emoji,hue:e.hue}),64)+'</div><div id="pvCover" style="flex:1;height:64px;border-radius:20px;background:'+grad(e.cover)+'"></div></div>'+
+   '<div><label>Фото профиля</label><div class="mrow" style="margin:0"><button type="button" class="chip pri" data-a="avphoto">📷 Загрузить фото</button>'+(D.me.photo_url?'<button type="button" class="chip danger" data-a="avremove">Убрать фото</button>':'')+'</div><p class="hint">Фото можно обрезать и подвинуть перед сохранением.</p></div>'+
+   '<div><label>Имя</label><input class="t" name="name" maxlength="32" value="'+esc(D.me.name)+'" required></div>'+
+   '<div><label>Имя пользователя (a–z, цифры, . и _)</label><input class="t" name="handle" maxlength="24" value="'+esc(D.me.handle)+'" required></div>'+
+   '<div><label>О себе</label><textarea class="t" name="bio" maxlength="140" style="min-height:76px">'+esc(D.me.bio)+'</textarea></div>'+
+   '<div><label>Эмодзи-аватар (если нет фото)</label><div class="emojis">'+EMOJIS.map(function(x){return '<button type="button" data-a="pick-e" data-v="'+x+'" class="'+(e.emoji===x?'on':'')+'">'+x+'</button>'}).join('')+'</div></div>'+
+   '<div><label>Цвет аватара</label><div class="hues">'+HUES.map(function(x){return '<button type="button" data-a="pick-h" data-v="'+x+'" class="'+(e.hue===x?'on':'')+'" style="background:'+grad(x)+'"></button>'}).join('')+'</div></div>'+
+   '<div><label>Обложка профиля</label><div class="hues">'+HUES.map(function(x){return '<button type="button" data-a="pick-c" data-v="'+x+'" class="'+(e.cover===x?'on':'')+'" style="background:'+grad(x)+'"></button>'}).join('')+'</div></div>'+
+   '<button class="btn" type="submit">Сохранить изменения</button></form>';
+  return h;
+}
+function tog(k,title,desc){return '<div class="srow"><div><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div><label class="sw"><input type="checkbox" data-k="S.'+k+'"'+(S[k]?' checked':'')+'><span></span></label></div>'}
+function settingsView(){
+  var h='<h2 style="margin:4px 6px 14px;font-size:28px">Настройки</h2>';
+  h+='<div class="glass sgroup"><h3>Аккаунт</h3><div class="srow"><div><b>Почта</b><small>'+esc(sess&&sess.user?sess.user.email.replace(FAKE,''):'—')+'</small></div><button class="chip danger" data-a="logout">Выйти</button></div>'+
+   '<div class="srow"><div><b>Вход</b><small>Имя пользователя и пароль</small></div><button class="chip" data-a="chpw">Сменить пароль</button></div>'+
+   '<div class="srow"><div><b>Защита входа</b><small>Одноразовый код из приложения-аутентификатора ('+(jwtAal(sess&&sess.access_token)==='aal2'?'включена ✅':'не подтверждена')+')</small></div></div></div>';
+  h+='<div class="glass sgroup"><h3>Внешний вид</h3>'+
+   '<div class="srow"><div><b>Акцентный цвет</b><small>Меняет оттенок всего приложения</small></div><div class="swatches">'+
+   HUES.map(function(x){return '<button class="swatch'+(S.hue===x?' on':'')+'" data-a="hue" data-v="'+x+'" style="background:hsl('+x+' 85% 65%)"></button>'}).join('')+'</div></div>'+
+   '<div class="srow"><div><b>Тема</b></div><div class="seg">'+[['light','Светлая'],['dark','Тёмная'],['auto','Авто']].map(function(t){return '<button data-a="theme" data-v="'+t[0]+'" class="'+(S.theme===t[0]?'on':'')+'">'+t[1]+'</button>'}).join('')+'</div></div>'+
+   '<div class="srow"><div><b>Сила стекла</b><small>Размытие фона за панелями</small></div><input type="range" min="0" max="48" value="'+S.blur+'" data-k="S.blur"></div>'+
+   tog('compact','Компактный режим','Меньше отступов, больше постов на экране')+
+   tog('anim','Живой фон и анимации','Плавающие розовые пятна')+'</div>';
+  h+='<div class="glass sgroup"><h3>Лента</h3>'+
+   tog('hideLikes','Скрыть счётчики лайков','Числа не отображаются в ленте и Reels')+
+   tog('rememberFilter','Запоминать фильтр подписок','Переключатель сохранится после перезапуска')+
+   tog('tips','Показывать подсказки','Короткие пояснения в ленте')+'</div>';
+  h+='<div class="glass sgroup"><h3>О Pulse</h3>'+
+   '<div class="srow"><div><b>Условия использования</b></div><button class="chip" data-a="legal" data-v="terms">Читать</button></div>'+
+   '<div class="srow"><div><b>Политика конфиденциальности</b></div><button class="chip" data-a="legal" data-v="privacy">Читать</button></div>'+
+   '<div class="srow"><div><b>Использование файлов cookie</b></div><button class="chip" data-a="legal" data-v="cookies">Читать</button></div>'+
+   '<div class="srow"><div><b>Pulse</b><small>© 2026 pulseSNteam</small></div></div></div>';
+  h+='<div class="glass sgroup"><h3>Данные</h3>'+
+   '<div class="srow"><div><b>Экспорт данных</b><small>Скачать профиль и публикации в JSON</small></div><button class="chip" data-a="export">Скачать</button></div>'+
+   '<div class="srow"><div><b>Удалить аккаунт</b><small>Профиль, публикации, комментарии и переписки будут удалены навсегда</small></div><button class="chip danger" data-a="delacct">Удалить</button></div></div>';
+  return h;
+}
+
+/* ---------- чаты ---------- */
+function chatTitle(c){if(c.kind==='group')return c.title||'Группа';var o=c.members.filter(function(x){return x!==D.me.id})[0];return prof(o).name}
+function chatOther(c){return c.members.filter(function(x){return x!==D.me.id})[0]}
+function chatAv(c,s){
+  if(c.kind==='group')return '<span class="av" style="--s:'+s+'px;background:'+grad(hashHue(c.title||'g'))+'">👥</span>';
+  return av(prof(chatOther(c)),s);
+}
+function chatsView(){
+  var h='<div style="display:flex;align-items:center;justify-content:space-between;margin:4px 6px 14px"><h2 style="margin:0;font-size:28px">Чаты</h2><div class="acts"><button class="chip pri" data-a="newchat">＋ Чат</button><button class="chip" data-a="newgroup">👥 Группа</button></div></div>';
+  if(!D.loaded.chats)return h+'<div class="glass empty"><big>⏳</big>Загружаем чаты…</div>';
+  if(!D.chats.length){
+    return h+'<div class="glass empty"><big>💬</big><b>Чатов пока нет</b><br>'+(friendIds().length?'Напишите кому-нибудь из друзей или создайте группу.':'Личные чаты доступны с друзьями. Отправьте заявку в друзья через поиск в ленте.')+'</div>';
+  }
+  h+='<div class="list">';
+  D.chats.forEach(function(c){
+    var l=c.last,pre=l?((l.sender===D.me.id?'Вы: ':(c.kind==='group'?prof(l.sender).name.split(' ')[0]+': ':''))+l.body):'Нет сообщений';
+    h+='<button class="glass crow" data-a="openchat" data-c="'+c.id+'">'+chatAv(c,50)+'<div class="m"><b>'+esc(chatTitle(c))+'</b><small>'+esc(pre)+'</small></div>'+(l?'<span class="tm">'+hm(l.created_at)+'</span>':'')+'</button>';
+  });
+  return h+'</div>';
+}
+function chatView(){
+  var c=D.chats.filter(function(x){return x.id===CH.id})[0]||CH.meta;
+  var head='<div class="chead glass"><button class="ibtn" data-a="chatback">'+icon('back')+'</button>'+
+   '<button class="who" data-a="'+(c&&c.kind==='group'?'ginfo':'user')+'" data-u="'+(c&&c.kind==='dm'?chatOther(c):'')+'">'+(c?chatAv(c,40):'')+'<div style="min-width:0"><b>'+esc(c?chatTitle(c):'Чат')+'</b>'+
+   (c&&c.kind==='group'?'<small>'+c.members.length+' участн.</small>':'')+'</div></button></div>';
+  return head+'<div class="msgs" id="msgs"></div>';
+}
+function renderMsgs(scroll){
+  var box=$('#msgs');if(!box||!CH)return;
+  var c=D.chats.filter(function(x){return x.id===CH.id})[0]||CH.meta;
+  var nearBottom=(window.innerHeight+window.scrollY)>=document.body.scrollHeight-160;
+  var h='';
+  if(!CH.loaded)h='<div class="hint" style="text-align:center">Загружаем…</div>';
+  else if(!CH.msgs.length)h='<div class="empty" style="padding:30px">Напишите первое сообщение 👋</div>';
+  CH.msgs.forEach(function(m){
+    var me=m.sender===D.me.id;
+    h+='<div class="bub '+(me?'me':'o')+'">'+(!me&&c&&c.kind==='group'?'<span class="sn">'+esc(prof(m.sender).name)+'</span>':'')+esc(m.body)+'<small>'+hm(m.created_at)+'</small></div>';
+  });
+  box.innerHTML=h;
+  if(scroll||nearBottom)window.scrollTo(0,document.body.scrollHeight);
+}
+async function loadChats(){
+  var rows=await rest('GET','chats?select=id,kind,title,created_by,created_at,members:chat_members(user_id)&order=created_at.desc');
+  var ids=[];rows.forEach(function(c){c.members.forEach(function(m){ids.push(m.user_id)})});
+  await ensureProfiles(ids);
+  var last={};
+  if(rows.length){
+    var ms=await rest('GET','messages?select=chat_id,body,created_at,sender&chat_id=in.('+rows.map(function(c){return c.id}).join(',')+')&order=created_at.desc&limit=300');
+    ms.forEach(function(m){if(!last[m.chat_id])last[m.chat_id]=m});
+  }
+  D.chats=rows.map(function(c){return {id:c.id,kind:c.kind,title:c.title,created_by:c.created_by,created:c.created_at,members:c.members.map(function(m){return m.user_id}),last:last[c.id]||null}})
+    .sort(function(a,b){return new Date(b.last?b.last.created_at:b.created)-new Date(a.last?a.last.created_at:a.created)});
+  D.loaded.chats=true;
+}
+async function loadMsgs(){
+  if(!CH)return false;
+  var id=CH.id;
+  var rows=await rest('GET','messages?select=id,sender,body,created_at&chat_id=eq.'+id+'&order=created_at.asc&limit=300');
+  if(!CH||CH.id!==id)return false;
+  var changed=!CH.loaded||rows.length!==CH.msgs.length||(rows.length&&CH.msgs.length&&rows[rows.length-1].id!==CH.msgs[CH.msgs.length-1].id);
+  if(changed){await ensureProfiles(rows.map(function(m){return m.sender}));CH.msgs=rows;CH.loaded=true}
+  return changed;
+}
+function stopTimers(){timers.forEach(clearInterval);timers=[]}
+
+/* ---------- Reels ---------- */
+function reelList(){
+  if(CFG.reelsF==='subs')return D.reels.filter(function(r){return has(D.following,r.u)});
+  return D.reels;
+}
+function reelActs(r){
+  var u=prof(r.u),liked=has(D.liked,r.id),own=mine(r.u);
+  return '<div class="rav"><button class="who" data-a="user" data-u="'+u.id+'" style="flex:none">'+av(u,52)+'</button>'+
+    (!own&&!has(D.following,u.id)?'<button class="plus" data-a="rfollow" data-u="'+u.id+'">+</button>':'')+'</div>'+
+   '<button class="ra'+(liked?' liked':'')+'" data-a="rlike" data-r="'+r.id+'"><i>'+icon('heart')+'</i>'+(S.hideLikes?'':fmt(r.l))+'</button>'+
+   '<button class="ra" data-a="rcomments" data-r="'+r.id+'"><i>'+icon('chat')+'</i>'+r.c+'</button>'+
+   '<button class="ra" data-a="rshare" data-r="'+r.id+'"><i>'+icon('share')+'</i></button>'+
+   (own?'<button class="ra" data-a="rmenu" data-r="'+r.id+'"><i>'+icon('dots')+'</i></button>':'');
+}
+function reelHTML(r){
+  var u=prof(r.u),media,isVid=false;
+  if(r.mm){
+    if(r.mm.k==='vid'){isVid=true;media='<video class="rmedia" src="'+esc(r.mm.url)+'" loop muted playsinline preload="metadata" style="filter:'+fltCss(r.mm.flt)+'"></video>'+ovHTML(r.mm.ov)}
+    else media='<img class="rmedia kb anim" src="'+esc(r.mm.url)+'" alt="">';
+  } else media='<div class="rbg anim" style="--a:hsl('+u.hue+' 92% 72%);--b:hsl('+((u.hue+55)%360)+' 90% 62%)"></div><div class="remoji anim">🎬</div>';
+  return '<section class="reel" data-r="'+r.id+'"><div class="rframe">'+media+'<div class="rshade"></div>'+
+   '<div class="rprog">'+(isVid?'<i style="animation:none"></i>':'<i class="anim"></i>')+'</div><div class="pause">⏸</div>'+
+   '<div class="rinfo"><b>@'+esc(u.handle)+'</b><span>'+esc(r.t||'')+'</span></div>'+
+   '<div class="ract">'+reelActs(r)+'</div></div></section>';
+}
+function buildReels(keep){
+  if(view!=='reels')return;
+  var root=$('#reels'),old=$('.rscroll',root),top=keep&&old?old.scrollTop:0;
+  var list=reelList(),h='';
+  h+='<div class="rtop glass"><button class="ibtn" data-a="rmute" id="rmute">'+icon(reelMuted?'mute':'vol')+'</button>'+
+    '<div class="seg"><button data-a="rfilter" data-v="all" class="'+(CFG.reelsF==='all'?'on':'')+'">Для вас</button><button data-a="rfilter" data-v="subs" class="'+(CFG.reelsF==='subs'?'on':'')+'">Подписки</button></div>'+
+    '<button class="ibtn" data-a="newreel">'+icon('plus')+'</button></div><div class="rscroll">';
+  if(!D.loaded.reels)h+='<section class="reel"><div class="glass empty" style="max-width:320px"><big>⏳</big>Загружаем Reels…</div></section>';
+  else if(!list.length)h+='<section class="reel"><div class="glass empty" style="max-width:320px"><big>🎬</big><b>Здесь пока пусто</b><br>'+(CFG.reelsF==='subs'?'Подпишитесь на авторов во вкладке «Для вас».':'Загрузите первый Reels кнопкой «+» сверху!')+'</div></section>';
+  list.forEach(function(r){h+=reelHTML(r)});
+  root.innerHTML=h+'</div>';
+  var sc=$('.rscroll',root);sc.scrollTop=top;
+  if(io)io.disconnect();
+  if(!window.IntersectionObserver)return;
+  io=new IntersectionObserver(function(es){es.forEach(function(en){
+    var s=en.target,v=s.querySelector('video');
+    if(en.isIntersecting&&en.intersectionRatio>=.6){
+      s.classList.add('active');s.classList.remove('paused');
+      if(v){v.muted=reelMuted;var p=v.play();if(p&&p.catch)p.catch(function(){})}
+    } else if(!en.isIntersecting||en.intersectionRatio<.3){s.classList.remove('active');if(v)v.pause()}
+  })},{root:sc,threshold:[0,.3,.6]});
+  $$('.reel',sc).forEach(function(s){
+    io.observe(s);
+    var v=s.querySelector('video');
+    if(v)v.addEventListener('timeupdate',function(){var i=s.querySelector('.rprog i');if(i&&v.duration)i.style.width=(v.currentTime/v.duration*100)+'%'});
+  });
+}
+function stopReels(){if(io){io.disconnect();io=null}var r=$('#reels');if(r)r.innerHTML=''}
+function updReel(id){var s=$('.reel[data-r="'+id+'"] .ract'),r=findItem(id);if(s&&r)s.innerHTML=reelActs(r)}
+function toggleReel(s){
+  var v=s.querySelector('video');
+  if(v){if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});s.classList.remove('paused')}else{v.pause();s.classList.add('paused')}}
+  else s.classList.toggle('paused');
+}
+
+/* ---------- отрисовка ---------- */
+function render(anim){
+  document.body.classList.toggle('inreels',view==='reels');
+  document.body.classList.toggle('inchat',view==='chat');
+  if(!D.me)return;
+  if(view==='reels'){buildReels(!anim)}
+  else{
+    stopReels();
+    var y=window.scrollY;
+    var html=view==='feed'?feedView():view==='profile'?profileView():view==='chats'?chatsView():view==='chat'?chatView():settingsView();
+    $('#view').innerHTML='<div class="'+(anim?'enter':'')+'">'+html+'</div>';
+    if(view==='chat')renderMsgs(true);
+    else if(!anim)window.scrollTo(0,y);
+  }
+  var n=incoming().length,cur=view==='chat'?'chats':view;
+  $('#dock').innerHTML=[['feed','home','Лента'],['reels','reels','Reels'],['chats','chats','Чаты'],['profile','user','Профиль'],['settings','gear','Настройки']].map(function(t){
+    return '<button class="'+(cur===t[0]?'on':'')+'" data-a="nav" data-v="'+t[0]+'" title="'+t[2]+'">'+icon(t[1])+'<span class="l">'+t[2]+'</span>'+(t[0]==='profile'&&n?'<b class="dot">'+n+'</b>':'')+'</button>'}).join('');
+  $('#topAv').innerHTML=av(D.me,36);
+  $('#fab').style.display=(view==='feed'||view==='profile')?'':'none';
+  $('#cinput button').innerHTML=icon('send');
+}
+function applySettings(){
+  var r=document.documentElement;
+  r.style.setProperty('--h',S.hue);r.style.setProperty('--blur',S.blur+'px');
+  var dark=S.theme==='dark'||(S.theme==='auto'&&mq&&mq.matches);
+  r.setAttribute('data-theme',dark?'dark':'light');
+  document.body.classList.toggle('compact',!!S.compact);
+  document.body.classList.toggle('no-anim',!S.anim);
+  var tc=document.querySelector('meta[name=theme-color]');if(tc)tc.content=dark?'#24101b':'#ffd9e8';
+}
+async function refreshData(v){
+  try{
+    if(v==='feed'){D.posts=await loadPosts('post');D.loaded.posts=true}
+    else if(v==='reels'){D.reels=await loadPosts('reel');D.loaded.reels=true}
+    else if(v==='profile'){
+      var r=await Promise.all([loadPosts('post'),loadPosts('reel'),loadReqs()]);
+      D.posts=r[0];D.reels=r[1];D.loaded.posts=D.loaded.reels=true;
+    }
+    else if(v==='chats'){await loadChats()}
+  }catch(e){handleErr(e);return}
+  if(view===v){
+    if(v==='feed'&&sq.trim()&&$('#fbody'))return;
+    var ae=document.activeElement;if(ae&&ae.tagName==='INPUT'&&ae.id!=='q')return;
+    render(false);
+  }
+}
+async function go(v){
+  stopTimers();view=v;if(v!=='profile')ED=null;
+  render(true);window.scrollTo(0,0);
+  if(v==='chats'){timers.push(setInterval(function(){if(view==='chats'&&!$('#modal').firstChild)refreshData('chats')},8000))}
+  await refreshData(v);
+}
+
+/* ---------- модалки ---------- */
+function modal(inner,wide){
+  $('#modal').innerHTML='<div class="ov" data-a="closeov"><div class="glass sheet'+(wide?' wide':'')+'"><button class="ibtn x" data-a="close">'+icon('x')+'</button>'+inner+'</div></div>';
+}
+function closeModal(){
+  if(draft&&draft.own&&draft.url){URL.revokeObjectURL(draft.url)}
+  draft=null;$('#modal').innerHTML='';
+}
+function userModal(id){
+  var u=prof(id),own=mine(id);
+  var posts=D.posts.filter(function(p){return p.u===id});
+  var h='<div style="margin:-20px -20px 0;height:100px;border-radius:32px 32px 0 0;background:'+grad((u.cover!=null?u.cover:u.hue)+0)+'"></div>'+
+   '<div style="margin-top:-40px;position:relative">'+av(u,84)+'</div>'+
+   '<h2 style="margin:10px 0 0">'+esc(u.name)+'</h2><div style="color:var(--muted)">@'+esc(u.handle)+'</div><p>'+esc(u.bio||'')+'</p>';
+  if(!own)h+='<div class="acts" style="justify-content:flex-start;margin-bottom:16px">'+followBtn(id)+friendBtn(id)+'</div>';
+  h+='<h3 class="sec" style="margin-left:0">Посты · '+posts.length+'</h3><div class="list">';
+  if(!posts.length)h+='<div class="empty" style="padding:16px">Пока нет постов</div>';
+  posts.slice(0,3).forEach(function(p){h+='<div class="row glass" style="display:block"><div style="white-space:pre-wrap">'+esc(p.t||(p.mm?'📷 Медиа':''))+'</div><small style="color:var(--muted)">'+p.time+' · ♥ '+p.l+'</small></div>'});
+  modal(h+'</div>');
+  $('#modal').firstChild.dataset.u=id;
+}
+function confirmModal(text,act){
+  modal('<h2 style="margin:0 0 8px">Вы уверены?</h2><p style="color:var(--muted)">'+text+'</p><div style="display:flex;gap:10px"><button class="btn ghost" data-a="close" style="flex:1">Отмена</button><button class="btn" data-a="'+act+'" style="flex:1">Да</button></div>');
+}
+async function openComments(id,reelModal){
+  if(D.C[id]===undefined){
+    try{D.C[id]=await rest('GET','comments?select=id,body,created_at,user_id,profile:profiles!user_id('+PF+')&post_id=eq.'+id+'&order=created_at.asc&limit=100');
+      D.C[id].forEach(function(c){if(c.profile)D.P[c.profile.id]=c.profile})}
+    catch(e){handleErr(e);D.C[id]=[]}
+  }
+  if(reelModal)reelCommentsModal(id);else render(false);
+}
+function reelCommentsModal(id){
+  var cs=D.C[id]||[];
+  var h='<h2 style="margin:0 0 12px">Комментарии · '+cs.length+'</h2><div class="comments" style="border:0;margin:0;padding:0">';
+  if(!cs.length)h+='<div class="empty" style="padding:20px">Пока никто не комментировал. Будьте первой!</div>';
+  cs.forEach(function(c){h+=commentHTML(c)});
+  h+='<form class="cform" data-form="rcomment" data-p="'+id+'"><input class="t" name="t" placeholder="Написать комментарий…" autocomplete="off" maxlength="500"><button class="ibtn" type="submit">'+icon('send')+'</button></form></div>';
+  modal(h);
+  var i=$('#modal input[name=t]');if(i&&!('ontouchstart' in window))i.focus();
+}
+
+/* ---------- создание / правка поста и Reels ---------- */
+function composeModal(mode,item){
+  mode=mode||'post';
+  draft={mode:mode,id:item?item.id:null,k:null,blob:null,url:'',own:false,flt:'none',ov:null,dirty:false,oldPath:null,emoji:item&&item.m?item.m.e:''};
+  if(item&&item.mm){draft.k=item.mm.k;draft.url=item.mm.url;draft.flt=item.mm.flt||'none';draft.ov=item.mm.ov;draft.oldPath=item.path}
+  var edit=!!item,reel=mode==='reel';
+  modal('<h2 style="margin:0 0 14px">'+(reel?(edit?'Редактировать Reels':'Новый Reels'):(edit?'Редактировать пост':'Новый пост'))+'</h2>'+
+   '<form data-form="compose"><textarea class="t" name="t" maxlength="1000" placeholder="'+(reel?'Подпись к Reels…':'Что у вас нового?')+'">'+esc(item?item.t||'':'')+'</textarea>'+
+   '<div id="dp"></div><div class="mrow"><button type="button" class="chip pri" data-a="pickmedia" id="pickM"></button></div>'+
+   (reel?'':'<div id="pe"><div class="lbl">Или цветная карточка</div><div class="emojis"><button type="button" data-a="pe" data-v="" class="txt'+(draft.emoji?'':' on')+'">без неё</button>'+['🌅','🌷','☕','🎀','🌙','🍓','🐱'].map(function(e){return '<button type="button" data-a="pe" data-v="'+e+'" class="'+(draft.emoji===e?'on':'')+'">'+e+'</button>'}).join('')+'</div></div>')+
+   '<button class="btn" id="cSubmit" style="width:100%;margin-top:14px" type="submit">'+(edit?'Сохранить':'Опубликовать')+'</button></form>',true);
+  drawDraft();
+  var ta=$('#modal textarea');if(ta&&!('ontouchstart' in window))ta.focus();
+}
+function drawDraft(){
+  var dp=$('#dp');if(!dp)return;
+  if(!draft.k){dp.innerHTML='';}
+  else{
+    var m=draft.k==='img'?'<img src="'+esc(draft.url)+'" alt="">':'<video src="'+esc(draft.url)+'" controls muted playsinline style="filter:'+fltCss(draft.flt)+'"></video>'+ovHTML(draft.ov);
+    dp.innerHTML='<div class="pm dprev">'+m+'</div><div class="mrow" style="justify-content:center"><button type="button" class="chip" data-a="editmedia">✂️ Редактировать</button><button type="button" class="chip danger" data-a="rmmedia">Убрать</button></div>';
+  }
+  var pb=$('#pickM');if(pb)pb.textContent=draft.k?'🔄 Заменить фото / видео':'📷 Добавить фото или видео';
+  var pe=$('#pe');if(pe)pe.style.display=draft.k?'none':'';
+}
+function setDraftMedia(k,blob,auto){
+  if(draft.own&&draft.url)URL.revokeObjectURL(draft.url);
+  draft.k=k;draft.blob=blob;draft.url=URL.createObjectURL(blob);draft.own=true;draft.dirty=true;
+  if(!auto){draft.flt='none';draft.ov=null}
+  drawDraft();
+}
+function handleFile(f){
+  if(!draft)return;
+  if(f.type.indexOf('video/')===0){
+    if(f.size>50*1024*1024){toast('Видео больше 50 МБ — выберите покороче');return}
+    if(!/^video\/(mp4|webm|quicktime)$/.test(f.type)){toast('Подходят видео MP4, WebM или MOV');return}
+    setDraftMedia('vid',f);
+  } else if(f.type.indexOf('image/')===0){
+    normImg(f,1600).then(function(b){setDraftMedia('img',b);editDraft()},function(){toast('Не удалось открыть фото')});
+  } else toast('Поддерживаются только фото и видео');
+}
+async function editDraft(){
+  if(!draft||!draft.k)return;
+  if(draft.k==='img'){
+    if(!draft.blob){
+      try{var r=await fetch(draft.url);draft.blob=await r.blob()}catch(e){toast('Не удалось загрузить фото для редактирования');return}
+    }
+    openImageEditor(draft.blob,{aspect:draft.mode==='reel'?0.5625:'orig'},function(b){setDraftMedia('img',b,true)});
+  } else {
+    openVideoEditor(draft.url,{flt:draft.flt,ov:draft.ov},function(m){draft.flt=m.flt;draft.ov=m.ov;drawDraft()});
+  }
+}
+async function submitCompose(fd){
+  var tx=(fd.get('t')||'').trim(),d=draft,reel=d.mode==='reel';
+  if(reel&&!d.k){toast('Добавьте видео или фото для Reels');return}
+  if(!reel&&!tx&&!d.k&&!d.emoji){toast('Напишите текст или добавьте фото/видео');return}
+  var btn=$('#cSubmit');btn.disabled=true;btn.textContent='Сохраняем…';
+  try{
+    var path=d.k?d.oldPath:null;
+    if(d.k&&d.dirty){btn.textContent='Загружаем медиа…';path=await upload(d.blob,d.k==='img'?'jpg':extOf(d.blob))}
+    var row={body:tx||null,media_path:path||null,media_kind:d.k||null,media_flt:d.k==='vid'?d.flt:null,ov:d.k==='vid'?d.ov:null,emoji:(!d.k&&!reel&&d.emoji)?d.emoji:null};
+    if(d.id)await rest('PATCH','posts?id=eq.'+d.id,row);
+    else{row.user_id=D.me.id;row.kind=reel?'reel':'post';await rest('POST','posts',row)}
+    if(d.oldPath&&d.oldPath!==path)removeObject(d.oldPath);
+    closeModal();toast(d.id?'Изменения сохранены ✨':(reel?'Reels опубликован 🎬':'Опубликовано ✨'));
+    var r=await Promise.all([loadPosts('post'),loadPosts('reel')]);D.posts=r[0];D.reels=r[1];D.loaded.posts=D.loaded.reels=true;
+    refresh();
+  }catch(e){btn.disabled=false;btn.textContent=d.id?'Сохранить':'Опубликовать';handleErr(e)}
+}
+
+/* ---------- редактор фото ---------- */
+function closeEd(){$('#modal2').innerHTML='';edOpen=false}
+function openImageEditor(blob,opt,cb){
+  var url=URL.createObjectURL(blob),img=new Image();
+  img.onerror=function(){URL.revokeObjectURL(url);toast('Не удалось открыть фото')};
+  img.onload=build;img.src=url;
+  function build(){
+    edOpen=true;
+    var CF=('filter' in document.createElement('canvas').getContext('2d'));
+    var E={rot:0,zoom:1,ox:0,oy:0,asp:opt.aspect||'orig',flt:'none',br:1,ct:1,texts:[],sel:-1,tc:'#ffffff',ts:.07,boxes:[]};
+    var asps=[['orig','Оригинал'],[1,'1:1'],[0.8,'4:5'],[0.5625,'9:16'],[1.7778,'16:9']];
+    var h='<div class="ov ed"><div class="glass sheet wide"><h2 style="margin:0 0 10px">Редактор фото</h2>'+
+     '<div class="edprev"><canvas id="edCv"></canvas></div>'+
+     '<p class="hint" style="margin:-4px 0 10px;text-align:center">Двигайте фото пальцем или мышью, текст — тоже можно перетаскивать</p>';
+    if(!opt.lock)h+='<div class="lbl">Обрезка</div><div class="edrow" id="edAsp">'+asps.map(function(a){return '<button class="chip'+(a[0]===E.asp?' pri':'')+'" data-e="asp" data-v="'+a[0]+'">'+a[1]+'</button>'}).join('')+'</div>';
+    h+='<div class="edrow"><button class="chip" data-e="rot">⟳ Повернуть</button><span class="lbl" style="margin:0 0 0 6px">Масштаб</span><input class="full" style="flex:1;min-width:120px" type="range" id="edZoom" min="1" max="3" step=".01" value="1"></div>';
+    if(CF){
+      h+='<div class="lbl">Фильтры</div><div class="edrow" id="edFlt">'+FILTERS.map(function(f){return '<button class="chip'+(f[0]==='none'?' pri':'')+'" data-e="flt" data-v="'+f[0]+'">'+f[1]+'</button>'}).join('')+'</div>'+
+       '<div class="edrow"><span class="lbl" style="margin:0 6px 0 0;width:78px">Яркость</span><input class="full" style="flex:1" type="range" id="edBr" min=".5" max="1.5" step=".01" value="1"></div>'+
+       '<div class="edrow"><span class="lbl" style="margin:0 6px 0 0;width:78px">Контраст</span><input class="full" style="flex:1" type="range" id="edCt" min=".5" max="1.5" step=".01" value="1"></div>';
+    }
+    h+='<div class="lbl">Текст и стикеры</div><div class="edrow"><input class="t" id="edTxt" placeholder="Введите текст…" style="flex:1;min-width:150px" maxlength="60"><button class="chip pri" data-e="add">Добавить</button></div>'+
+     '<div class="edrow">'+TCOLS.map(function(c,i){return '<button class="tcol'+(i===0?' on':'')+'" data-e="tcol" data-v="'+c+'" style="background:'+c+'"></button>'}).join('')+
+     '<span class="lbl" style="margin:0 0 0 6px">Размер</span><input type="range" id="edTs" min=".03" max=".2" step=".005" value=".07" style="width:110px"><button class="chip danger" data-e="del">Удалить текст</button></div>'+
+     '<div class="edrow">'+['🎀','💖','✨','🔥','🌸','😍','🦋'].map(function(s){return '<button class="stk" data-e="stk" data-v="'+s+'">'+s+'</button>'}).join('')+'</div>'+
+     '<div class="edbtns"><button class="btn ghost" data-e="cancel" style="flex:1">Отмена</button><button class="btn" data-e="ok" style="flex:1">Готово</button></div></div></div>';
+    $('#modal2').innerHTML=h;
+    var sheet=$('#modal2 .sheet'),cv=$('#edCv');
+
+    function fcss(){return 'brightness('+E.br+') contrast('+E.ct+') '+fltCss(E.flt)}
+    function draw(c,W){
+      var iw=img.naturalWidth,ih=img.naturalHeight,odd=E.rot%2;
+      var rw=odd?ih:iw,rh=odd?iw:ih,ratio=E.asp==='orig'?rw/rh:E.asp,H=Math.round(W/ratio);
+      c.width=W;c.height=H;
+      var x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,W,H);
+      var sc=Math.max(W/rw,H/rh)*E.zoom;
+      var mx=Math.max(0,(rw*sc-W)/2)/W,my=Math.max(0,(rh*sc-H)/2)/H;
+      E.ox=clamp(E.ox,-mx,mx);E.oy=clamp(E.oy,-my,my);
+      x.save();
+      if(CF)x.filter=fcss();
+      x.translate(W/2+E.ox*W,H/2+E.oy*H);x.rotate(E.rot*Math.PI/2);x.scale(sc,sc);
+      x.drawImage(img,-iw/2,-ih/2);
+      x.restore();
+      E.boxes=[];
+      E.texts.forEach(function(t,i){
+        var fs=t.s*H;x.font='800 '+fs+'px '+FONT;x.textAlign='center';x.textBaseline='middle';
+        var w=x.measureText(t.t).width;
+        x.save();x.shadowColor='rgba(0,0,0,.45)';x.shadowBlur=fs*.2;x.fillStyle=t.c;x.fillText(t.t,t.x*W,t.y*H);x.restore();
+        E.boxes[i]={x:(t.x*W-w/2)/W,y:(t.y*H-fs*.65)/H,w:w/W,h:fs*1.3/H};
+        if(c===cv&&i===E.sel){x.save();x.strokeStyle='#fff';x.lineWidth=2;x.setLineDash([8,6]);x.strokeRect(t.x*W-w/2-8,t.y*H-fs*.7,w+16,fs*1.4);x.restore()}
+      });
+    }
+    function redraw(){draw(cv,720)}
+    redraw();
+
+    var drag=null;
+    cv.addEventListener('pointerdown',function(e){
+      var r=cv.getBoundingClientRect(),px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height,hit=-1;
+      for(var i=E.boxes.length-1;i>=0;i--){var b=E.boxes[i];if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h){hit=i;break}}
+      E.sel=hit;drag={t:hit,lx:e.clientX,ly:e.clientY};
+      if(hit>-1){$('#edTs').value=E.texts[hit].s}
+      cv.setPointerCapture(e.pointerId);redraw();
+    });
+    cv.addEventListener('pointermove',function(e){
+      if(!drag)return;var r=cv.getBoundingClientRect(),dx=(e.clientX-drag.lx)/r.width,dy=(e.clientY-drag.ly)/r.height;
+      drag.lx=e.clientX;drag.ly=e.clientY;
+      if(drag.t>-1){var t=E.texts[drag.t];t.x=clamp(t.x+dx,0,1);t.y=clamp(t.y+dy,0,1)}
+      else{E.ox+=dx;E.oy+=dy}
+      redraw();
+    });
+    function up(){drag=null}
+    cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+    cv.addEventListener('wheel',function(e){e.preventDefault();E.zoom=clamp(E.zoom+(e.deltaY<0?.06:-.06),1,3);$('#edZoom').value=E.zoom;redraw()},{passive:false});
+
+    function setOn(box,sel,val){$$(sel,box).forEach(function(b){b.classList.toggle('pri',String(b.dataset.v)===String(val))})}
+    sheet.addEventListener('click',function(e){
+      var el=e.target.closest('[data-e]');if(!el)return;var a=el.dataset.e,v=el.dataset.v;
+      if(a==='asp'){E.asp=v==='orig'?'orig':parseFloat(v);E.ox=E.oy=0;setOn($('#edAsp'),'button',v);redraw()}
+      else if(a==='rot'){E.rot=(E.rot+1)%4;E.ox=E.oy=0;redraw()}
+      else if(a==='flt'){E.flt=v;setOn($('#edFlt'),'button',v);redraw()}
+      else if(a==='tcol'){E.tc=v;if(E.sel>-1)E.texts[E.sel].c=v;$$('.tcol',sheet).forEach(function(b){b.classList.toggle('on',b===el)});redraw()}
+      else if(a==='add'){var inp=$('#edTxt'),t=inp.value.trim();if(!t){toast('Введите текст');return}E.texts.push({t:t,x:.5,y:.5,c:E.tc,s:E.ts});E.sel=E.texts.length-1;inp.value='';redraw()}
+      else if(a==='stk'){E.texts.push({t:v,x:.5,y:.5,c:'#fff',s:.16});E.sel=E.texts.length-1;redraw()}
+      else if(a==='del'){if(E.sel>-1){E.texts.splice(E.sel,1);E.sel=-1;redraw()}else toast('Выберите текст на фото')}
+      else if(a==='cancel'){URL.revokeObjectURL(url);closeEd()}
+      else if(a==='ok'){
+        E.sel=-1;var out=document.createElement('canvas');draw(out,opt.out||1080);
+        out.toBlob(function(b){URL.revokeObjectURL(url);closeEd();if(b)cb(b);else toast('Не удалось сохранить фото')},'image/jpeg',.9);
+      }
+    });
+    sheet.addEventListener('input',function(e){
+      var i=e.target.id;
+      if(i==='edZoom'){E.zoom=+e.target.value}
+      else if(i==='edBr'){E.br=+e.target.value}
+      else if(i==='edCt'){E.ct=+e.target.value}
+      else if(i==='edTs'){E.ts=+e.target.value;if(E.sel>-1)E.texts[E.sel].s=E.ts}
+      else return;
+      redraw();
+    });
+  }
+}
+function openVideoEditor(url,meta,cb){
+  edOpen=true;
+  var o=meta.ov||{};
+  var M={flt:meta.flt||'none',t:o.t||'',c:o.c||'#ffffff',s:o.s||.07,y:o.y||.8};
+  $('#modal2').innerHTML='<div class="ov ed"><div class="glass sheet wide"><h2 style="margin:0 0 10px">Редактор видео</h2>'+
+   '<div class="pm dprev" id="vp"><video src="'+esc(url)+'" muted loop autoplay playsinline></video><div class="ovt" id="vo"></div></div>'+
+   '<div class="lbl" style="margin-top:12px">Фильтр</div><div class="edrow" id="vf">'+FILTERS.map(function(f){return '<button class="chip'+(f[0]===M.flt?' pri':'')+'" data-e="flt" data-v="'+f[0]+'">'+f[1]+'</button>'}).join('')+'</div>'+
+   '<div class="lbl">Текст поверх видео</div><div class="edrow"><input class="t" id="vt" placeholder="Введите текст…" maxlength="60" value="'+esc(M.t)+'"></div>'+
+   '<div class="edrow">'+TCOLS.map(function(c){return '<button class="tcol'+(c===M.c?' on':'')+'" data-e="tcol" data-v="'+c+'" style="background:'+c+'"></button>'}).join('')+'</div>'+
+   '<div class="edrow"><span class="lbl" style="margin:0;width:78px">Размер</span><input class="full" style="flex:1" type="range" id="vs" min=".03" max=".15" step=".005" value="'+M.s+'"></div>'+
+   '<div class="edrow"><span class="lbl" style="margin:0;width:78px">Позиция</span><input class="full" style="flex:1" type="range" id="vy" min=".1" max=".9" step=".01" value="'+M.y+'"></div>'+
+   '<div class="edbtns"><button class="btn ghost" data-e="cancel" style="flex:1">Отмена</button><button class="btn" data-e="ok" style="flex:1">Готово</button></div></div></div>';
+  var sheet=$('#modal2 .sheet'),vid=$('#vp video'),vo=$('#vo');
+  function upd(){vid.style.filter=fltCss(M.flt);vo.textContent=M.t;vo.style.cssText='top:'+(M.y*100)+'%;color:'+M.c+';font-size:'+(M.s*100)+'cqw'}
+  upd();
+  sheet.addEventListener('click',function(e){
+    var el=e.target.closest('[data-e]');if(!el)return;var a=el.dataset.e,v=el.dataset.v;
+    if(a==='flt'){M.flt=v;$$('#vf button').forEach(function(b){b.classList.toggle('pri',b.dataset.v===v)});upd()}
+    else if(a==='tcol'){M.c=v;$$('.tcol',sheet).forEach(function(b){b.classList.toggle('on',b===el)});upd()}
+    else if(a==='cancel')closeEd();
+    else if(a==='ok'){closeEd();cb({flt:M.flt,ov:M.t?{t:M.t,c:M.c,s:M.s,y:M.y}:null})}
+  });
+  sheet.addEventListener('input',function(e){
+    var i=e.target.id;
+    if(i==='vt')M.t=e.target.value.trim();else if(i==='vs')M.s=+e.target.value;else if(i==='vy')M.y=+e.target.value;else return;
+    upd();
+  });
+}
+
+/* ---------- правовые документы ---------- */
+var LEGAL={
+ terms:{tab:'Условия',html:[
+  '<h2>Условия использования</h2><div class="dt">pulseSNteam · редакция от 22 ноября 2026</div>',
+  '<p>Эти условия регулируют использование социальной сети Pulse (далее — «Сервис»), которую развивает команда pulseSNteam («мы»). Создавая аккаунт или продолжая пользоваться Сервисом, вы принимаете эти условия.</p>',
+  '<h3>1. Аккаунт</h3><ul><li>Вам должно быть не менее 14 лет.</li><li>Указывайте достоверные данные и храните пароль в тайне — вы отвечаете за действия в своём аккаунте.</li><li>Один человек — один аккаунт. Выдавать себя за другого человека нельзя.</li></ul>',
+  '<h3>2. Ваш контент</h3><p>Посты, Reels, фото, видео, комментарии и сообщения остаются вашими. Публикуя пост, Reels или комментарий, вы разрешаете Сервису показывать их другим пользователям Pulse. Вы подтверждаете, что имеете право публиковать то, что загружаете.</p>',
+  '<h3>3. Правила поведения</h3><p>В Pulse запрещено:</p><ul><li>публиковать незаконный, оскорбительный контент, травлю, угрозы и разжигание вражды;</li><li>размещать чужие личные данные и интимные материалы без согласия;</li><li>выкладывать материалы, нарушающие чужие авторские права;</li><li>рассылать спам, мошеннические ссылки и вредоносный код;</li><li>вмешиваться в работу Сервиса и обходить его ограничения.</li></ul>',
+  '<h3>4. Подписки, друзья, чаты и группы</h3><p>Вы можете подписываться на людей и отправлять заявки в друзья. Личные чаты доступны только между друзьями; группы можно создавать с друзьями. Получатель вправе принять или отклонить заявку, отписаться, удалить человека из друзей или покинуть группу.</p>',
+  '<h3>5. Модерация</h3><p>Мы можем скрыть или удалить контент и ограничить доступ к аккаунту, если они нарушают эти условия или закон.</p>',
+  '<h3>6. Статус Сервиса и ответственность</h3><p>Pulse находится в стадии разработки. Сервис предоставляется «как есть», без гарантий бесперебойной работы и сохранности данных. В пределах, допустимых законом, мы не отвечаем за косвенные убытки и потерю данных.</p>',
+  '<h3>7. Изменения условий</h3><p>Мы можем обновлять условия. Актуальная редакция всегда доступна в приложении (Настройки → О Pulse), а продолжение пользования после изменений означает согласие с ними.</p>',
+  '<h3>8. Связь с нами</h3><p>По вопросам условий напишите команде pulseSNteam через страницу проекта на GitHub.</p>'
+ ].join('')},
+ privacy:{tab:'Конфиденциальность',html:[
+  '<h2>Политика конфиденциальности</h2><div class="dt">pulseSNteam · редакция от 22 ноября 2026</div>',
+  '<p>Мы стараемся собирать как можно меньше данных. Ниже — что именно хранит Pulse и зачем.</p>',
+  '<h3>1. Какие данные используются</h3><ul><li><b>Аккаунт:</b> адрес электронной почты, имя, имя пользователя, описание, фото профиля.</li><li><b>Пароль:</b> хранится у провайдера аутентификации только в виде необратимого хеша.</li><li><b>Контент:</b> посты, Reels, комментарии, загруженные фото и видео.</li><li><b>Общение:</b> личные сообщения и сообщения в группах, список ваших чатов.</li><li><b>Действия:</b> подписки, друзья, заявки, лайки.</li></ul>',
+  '<h3>2. Где хранятся данные</h3><p>Данные хранятся в облачной базе и хранилище Supabase (аккаунты, база данных, файлы). Настройки оформления и данные входа (сессия) хранятся в памяти вашего браузера. Проект размещён на GitHub Pages.</p>',
+  '<h3>3. Кто что видит</h3><ul><li>Профиль (имя, ник, описание, фото), посты, Reels и комментарии видны другим зарегистрированным пользователям Pulse.</li><li>Фото и видео доступны по прямой ссылке всем, у кого она есть.</li><li>Сообщения видны только участникам чата. Технически доступ к базе данных есть у администраторов проекта; мы не читаем переписки без необходимости — например, по жалобе или требованию закона.</li><li>Адрес почты другим пользователям не показывается.</li></ul>',
+  '<h3>4. Для чего используются данные</h3><p>Только для работы Сервиса: вход в аккаунт, отправка кодов подтверждения на почту, показ ленты, Reels, чатов и профиля. Мы не продаём данные, не показываем рекламу и не строим рекламные профили.</p>',
+  '<h3>5. Сторонние сервисы</h3><ul><li><b>Supabase</b> — аутентификация, база данных и хранилище файлов.</li><li><b>Почтовый провайдер</b> — отправка писем с кодами подтверждения на ваш адрес.</li><li><b>GitHub Pages</b> — хостинг страницы; получает технические данные обращения (например, IP-адрес).</li><li><b>Google Fonts</b> — загрузка шрифта Inter; Google получает технические данные запроса.</li></ul>',
+  '<h3>6. Ваши права и управление данными</h3><ul><li>Изменить имя, ник, описание и фото — «Профиль → Внешний вид».</li><li>Скачать свои данные — «Настройки → Данные → Экспорт».</li><li>Удалить аккаунт со всеми публикациями, комментариями и переписками — «Настройки → Данные → Удалить аккаунт».</li><li>Удалить отдельный пост или Reels — кнопка «Удалить» у публикации.</li></ul>',
+  '<h3>7. Дети</h3><p>Pulse не предназначен для лиц младше 14 лет.</p>',
+  '<h3>8. Безопасность</h3><p>Мы используем разумные меры защиты, включая правила доступа на уровне базы данных. Ни один способ хранения не абсолютно безопасен: не используйте на Pulse пароли, которые вы применяете в других сервисах.</p>',
+  '<h3>9. Изменения и связь</h3><p>Мы можем обновлять политику и сообщим об этом в приложении. Вопросы о данных можно направить команде pulseSNteam через страницу проекта на GitHub.</p>'
+ ].join('')},
+ cookies:{tab:'Cookie',html:[
+  '<h2>Использование файлов cookie</h2><div class="dt">pulseSNteam · редакция от 22 ноября 2026</div>',
+  '<p>Pulse не использует рекламные и аналитические cookie и не отслеживает вас на сторонних сайтах.</p>',
+  '<h3>Что хранится в браузере</h3><ul><li><b>localStorage</b>, ключ pulse.session — данные входа, чтобы вам не приходилось вводить пароль при каждом открытии.</li><li><b>localStorage</b>, ключ pulse.settings — оформление и ваши настройки ленты.</li></ul>',
+  '<p>Это необходимые данные: без них Сервис не сможет запомнить, что вы вошли, и ваши настройки.</p>',
+  '<h3>Сторонние запросы</h3><p>При открытии страницы браузер может загрузить шрифт Inter с Google Fonts. Google может обрабатывать технические данные запроса по своим правилам.</p>',
+  '<h3>Как удалить данные</h3><ul><li>В приложении: «Настройки → Выйти» удалит данные входа с устройства.</li><li>В браузере: очистите данные сайта в настройках конфиденциальности.</li></ul>'
+ ].join('')}
+};
+function legalModal(id){
+  if(!LEGAL[id])id='terms';
+  $('#modal2').innerHTML='<div class="ov top" data-a="legalov"><div class="glass sheet wide legal"><button class="ibtn x" data-a="legalclose">'+icon('x')+'</button>'+
+   '<div class="seg">'+['terms','privacy','cookies'].map(function(k){return '<button data-a="legal" data-v="'+k+'" class="'+(k===id?'on':'')+'">'+LEGAL[k].tab+'</button>'}).join('')+'</div>'+
+   '<div class="lbody">'+LEGAL[id].html+'</div><p class="hint" style="text-align:center;margin-top:14px">© 2026 pulseSNteam</p></div></div>';
+}
+
+/* ================= АВТОРИЗАЦИЯ ================= */
+var authStep='login',AF=null,authTimer=null;
+function mask(e){var p=e.split('@');return p[0].charAt(0)+'***@'+(p[1]||'')}
+function showAuth(step){authStep=step;$('#auth').style.display='grid';renderAuth()}
+function hideAuth(){clearInterval(authTimer);$('#auth').style.display='none';$('#auth').innerHTML=''}
+function renderAuth(){
+  clearInterval(authTimer);
+  var h='<div class="glass acard enter"><div class="logo" style="justify-content:center"><i><svg viewBox="0 0 24 24"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg></i><b>Pulse</b></div>';
+  if(authStep==='enroll'){
+    var en=AF&&AF.en;
+    h+='<h2 style="text-align:center">Включите защиту входа</h2><p style="text-align:center">1. Установите приложение-аутентификатор (Google Authenticator, Microsoft Authenticator, Authy, 2FAS).<br>2. Отсканируйте QR-код или введите ключ вручную.<br>3. Введите 6-значный код из приложения.</p>'+
+     (en?'<div style="text-align:center"><img alt="QR" src="'+esc(en.qr)+'" style="width:180px;height:180px;background:#fff;border-radius:14px;padding:8px"></div><p style="text-align:center;font-size:12px;word-break:break-all">Ключ: <b>'+esc(en.secret)+'</b></p>':'<p style="text-align:center">Загрузка…</p>')+
+     '<form data-form="enroll" novalidate><input class="t code" name="c" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••"><div class="err" id="aerr"></div><button class="btn" type="submit">Включить и войти</button></form>'+
+     '<div style="text-align:center;margin-top:14px"><button class="lnk" data-a="logout">← Выйти</button></div>';
+  } else if(authStep==='mfa'){
+    h+='<h2 style="text-align:center">Код из приложения</h2><p style="text-align:center">Откройте приложение-аутентификатор и введите текущий 6-значный код для Pulse.</p>'+
+     '<form data-form="mfa" novalidate><input class="t code" name="c" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••"><div class="err" id="aerr"></div><button class="btn" type="submit">Войти</button></form>'+
+     '<div style="text-align:center;margin-top:14px"><button class="lnk" data-a="logout">← Назад</button></div>';
+  } else if(authStep==='code'){
+    h+='<h2 style="text-align:center">Введите код из письма</h2><p style="text-align:center">Мы отправили код на <b>'+esc(mask(AF.email))+'</b>. Если письма нет, проверьте папку «Спам».</p>'+
+     '<form data-form="code"><input class="t code" name="c" inputmode="numeric" maxlength="8" autocomplete="one-time-code" placeholder="••••••"><div class="err" id="aerr"></div><button class="btn" type="submit">Подтвердить</button></form>'+
+     '<div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap"><button class="chip" data-a="authback">← Назад</button><button class="chip" id="resend" data-a="resend" disabled>Отправить снова через 60 с</button></div>';
+  } else if(authStep==='forgot'){
+    h+='<h2 style="text-align:center">Восстановление доступа</h2><p style="text-align:center">Введите почту — мы отправим код для входа, а потом вы зададите новый пароль.</p>'+
+     '<form data-form="forgot" novalidate><input class="t" name="email" type="email" placeholder="Электронная почта" autocomplete="email"><div class="err" id="aerr"></div><button class="btn" type="submit">Отправить код</button></form>'+
+     '<div style="text-align:center;margin-top:14px"><button class="lnk" data-a="authtab" data-v="login">← Назад ко входу</button></div>';
+  } else if(authStep==='newpw'){
+    h+='<h2 style="text-align:center">Новый пароль</h2><p style="text-align:center">Вы вошли. Задайте новый пароль для следующих входов.</p>'+
+     '<form data-form="newpw" novalidate><div class="pw"><input class="t" name="pw" type="password" placeholder="Новый пароль (минимум 8 символов)" autocomplete="new-password"><button type="button" data-a="eye">👁</button></div>'+
+     '<div class="pw"><input class="t" name="pw2" type="password" placeholder="Повторите пароль" autocomplete="new-password"><button type="button" data-a="eye">👁</button></div>'+
+     '<div class="err" id="aerr"></div><button class="btn" type="submit">Сохранить пароль</button></form>'+
+     '<div style="text-align:center;margin-top:14px"><button class="lnk" data-a="skippw">Пропустить</button></div>';
+  } else {
+    var reg=authStep==='reg';
+    h+='<h2 style="text-align:center">'+(reg?'Создайте аккаунт':'С возвращением!')+'</h2><p style="text-align:center">'+(reg?'Имя пользователя, пароль и защита входа через приложение — без почты':'Войдите, чтобы продолжить')+'</p>'+
+     '<div class="seg"><button data-a="authtab" data-v="login" class="'+(reg?'':'on')+'">Вход</button><button data-a="authtab" data-v="reg" class="'+(reg?'on':'')+'">Регистрация</button></div>'+
+     '<form data-form="'+(reg?'reg':'login')+'" novalidate>'+
+     (reg?'<input class="t" name="name" placeholder="Ваше имя" maxlength="32" autocomplete="name">':'')+
+     '<input class="t" name="email" type="text" autocapitalize="none" spellcheck="false" placeholder="'+(reg?'Имя пользователя (a-z, 0-9, _ , 3–18)':'Имя пользователя')+'" autocomplete="username">'+
+     '<div class="pw"><input class="t" name="pw" type="password" placeholder="Пароль'+(reg?' (минимум 8 символов)':'')+'" autocomplete="'+(reg?'new-password':'current-password')+'"><button type="button" data-a="eye" title="Показать пароль">👁</button></div>'+
+     (reg?'<div class="bar"><i id="pwbar"></i></div><div class="hint" id="pwtxt" style="margin:-6px 4px 0">Надёжный пароль: буквы, цифры и символы</div>'+
+       '<div class="pw"><input class="t" name="pw2" type="password" placeholder="Повторите пароль" autocomplete="new-password"><button type="button" data-a="eye">👁</button></div>':'')+
+     '<div class="err" id="aerr"></div><button class="btn" type="submit">'+(reg?'Создать аккаунт':'Войти')+'</button></form>'+
+     (reg?'<div class="hint" style="margin:10px 4px 0">Без почты пароль восстановить нельзя — запомните его. Дальше вы подключите приложение-аутентификатор.</div>':'');
+  }
+  h+='<div class="legalnote">Продолжая, вы соглашаетесь с нашими '+
+    '<button type="button" class="lnk" data-a="legal" data-v="terms">Условиями использования</button>, '+
+    '<button type="button" class="lnk" data-a="legal" data-v="privacy">Политикой конфиденциальности</button> и '+
+    '<button type="button" class="lnk" data-a="legal" data-v="cookies">Использованием файлов cookie</button>.</div>';
+  $('#auth').innerHTML=h+'</div>';
+  if(authStep==='code'){
+    var left=60;
+    authTimer=setInterval(function(){left--;var r=$('#resend');if(!r){clearInterval(authTimer);return}
+      if(left<=0){clearInterval(authTimer);r.disabled=false;r.textContent='Отправить код снова'}else r.textContent='Отправить снова через '+left+' с'},1000);
+    var ci=$('#auth input[name=c]');if(ci&&!('ontouchstart' in window))ci.focus();
+  }
+}
+function aerr(t){var e=$('#aerr');if(e)e.textContent=t;var c=$('#auth .acard');if(c){c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake')}}
+function pwScore(p){var s=0;if(p.length>=8)s++;if(p.length>=12)s++;if(/[a-zа-я]/.test(p)&&/[A-ZА-Я]/.test(p))s++;if(/\d/.test(p))s++;if(/[^\w\s]/.test(p))s++;return Math.min(4,s)}
+function busy(f,on){f.dataset.busy=on?'1':'';var b=f.querySelector('button[type=submit]');if(b)b.disabled=!!on}
+async function finishAuth(){
+  hideAuth();view='feed';sq='';
+  await bootApp();
+}
+var FAKE='@pulse-sn.app';
+function u2e(u){u=(u||'').trim().toLowerCase();return u.indexOf('@')>-1?u:u+FAKE}
+var BADPW=['password','12345678','123456789','qwerty123','11111111','1q2w3e4r','qwertyui','password1','pulse1234','iloveyou1'];
+var lockN=0,lockUntil=0;
+function jwtAal(t){try{return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).aal}catch(e){return null}}
+async function mfaGate(){
+  var u=await authCall('/user',null,'GET',sess.access_token);
+  var f=((u&&u.factors)||[]).filter(function(x){return x.factor_type==='totp'&&x.status==='verified'})[0];
+  if(f){AF={fid:f.id,tries:0};authStep='mfa';renderAuth();return}
+  await startEnroll();
+}
+async function startEnroll(){
+  AF={tries:0};authStep='enroll';renderAuth();
+  try{
+    var u=await authCall('/user',null,'GET',sess.access_token);
+    var old=((u&&u.factors)||[]).filter(function(x){return x.status!=='verified'});
+    for(var i=0;i<old.length;i++){try{await authCall('/factors/'+old[i].id,null,'DELETE',sess.access_token)}catch(e){}}
+    var r=await authCall('/factors',{factor_type:'totp',friendly_name:'Pulse '+Date.now(),issuer:'Pulse'},'POST',sess.access_token);
+    AF={fid:r.id,tries:0,en:{qr:r.totp.qr_code,secret:r.totp.secret}};renderAuth();
+  }catch(e){aerr(errText(e))}
+}
+async function mfaVerify(code){
+  if(!/^\d{6}$/.test(code)){aerr('Введите 6 цифр из приложения');return}
+  try{
+    var ch=await authCall('/factors/'+AF.fid+'/challenge',{},'POST',sess.access_token);
+    var j=await authCall('/factors/'+AF.fid+'/verify',{challenge_id:ch.id,code:code},'POST',sess.access_token);
+    setSess(j);AF=null;await finishAuth();
+  }catch(e){
+    AF.tries=(AF.tries||0)+1;
+    if(AF.tries>=5){await forceLogoutSoft('Слишком много неверных кодов. Войдите заново.');return}
+    aerr(/invalid|expired|code/i.test((e.message||'')+(e.code||''))?'Неверный код. Проверьте время на телефоне и попробуйте снова.':errText(e));
+    var i=$('#auth input[name=c]');if(i){i.value='';i.focus()}
+  }
+}
+async function forceLogoutSoft(msg){
+  try{await authCall('/logout',null,'POST',sess&&sess.access_token)}catch(e){}
+  clearSess();AF=null;authStep='login';renderAuth();if(msg)setTimeout(function(){aerr(msg)},50);
+}
+async function doLogin(email,pw){
+  if(Date.now()<lockUntil){aerr('Слишком много попыток. Подождите '+Math.ceil((lockUntil-Date.now())/1000)+' с');return}
+  email=u2e(email);
+  try{
+    var j=await authCall('/token?grant_type=password',{email:email,password:pw});
+    lockN=0;setSess(j);await mfaGate();
+  }catch(e){
+    if(/Invalid login/i.test(e.message||'')){lockN++;if(lockN>=5){lockUntil=Date.now()+60000;lockN=0}}
+    if(/not confirmed/i.test((e.message||'')+(e.code||''))){
+      AF={email:email,mode:'signup',tries:0};
+      try{await authCall('/resend',{type:'signup',email:email})}catch(x){}
+      authStep='code';renderAuth();toast('Почта не подтверждена — отправили код');return;
+    }
+    aerr(errText(e));
+  }
+}
+async function doReg(name,email,pw){
+  var j=await authCall('/signup',{email:email,password:pw,data:{name:name}});
+  if(j&&j.access_token){setSess(j);await startEnroll();return}
+  throw new Error('В Supabase включено подтверждение почты — выключите Confirm email (Authentication → Sign In / Providers → Email)');
+  var ids=(j&&j.user&&j.user.identities)||(j&&j.identities);
+  if(ids&&ids.length===0)throw new Error('user_already_exists');
+  AF={email:email,mode:'signup',tries:0};authStep='code';renderAuth();
+}
+async function verifyCode(v){
+  if(!AF||AF.busy)return;
+  if(!/^\d{6,8}$/.test(v)){aerr('Введите код из письма (6–8 цифр)');return}
+  AF.busy=true;
+  try{
+    var j;
+    try{j=await authCall('/verify',{type:'email',email:AF.email,token:v})}
+    catch(e1){
+      if(AF.mode==='signup'){try{j=await authCall('/verify',{type:'signup',email:AF.email,token:v})}catch(e2){throw e1}}
+      else throw e1;
+    }
+    setSess(j);
+    if(AF.mode==='recovery'){authStep='newpw';AF=null;renderAuth()}
+    else{AF=null;await finishAuth()}
+  }catch(e){
+    if(AF){AF.tries++;
+      if(AF.tries>=6){authStep='login';AF=null;renderAuth();setTimeout(function(){aerr('Слишком много неверных кодов. Попробуйте снова.')},50)}
+      else{aerr(errText(e));var i=$('#auth input[name=c]');if(i){i.value='';i.focus()}}
+    }
+  }
+  if(AF)AF.busy=false;
+}
+function forceLogout(){
+  clearSess();stopTimers();D.me=null;D.loaded={};view='feed';
+  closeModal();closeEd();$('#view').innerHTML='';
+  showAuth('login');
+}
+
+/* ================= ДЕЙСТВИЯ ================= */
+function refresh(){
+  render(false);
+  var m=$('#modal .ov');
+  if(m){var id=$('#modal').firstChild.dataset.u;if(id&&$('#modal .sheet h2'))userModal(id)}
+}
+async function loadReqs(){D.reqs=await rest('GET','friend_requests?select=*&or=(from_id.eq.'+D.me.id+',to_id.eq.'+D.me.id+')');await ensureProfiles(D.reqs.map(function(r){return r.from_id===D.me.id?r.to_id:r.from_id}))}
+async function toggleLike(id){
+  var it=findItem(id);if(!it)return;
+  var was=has(D.liked,id);
+  if(was){del(D.liked,id);it.l=Math.max(0,it.l-1)}else{add(D.liked,id);it.l++}
+  if(it.kind==='reel')updReel(id);else render(false);
+  try{
+    if(was)await rest('DELETE','likes?post_id=eq.'+id+'&user_id=eq.'+D.me.id);
+    else await rest('POST','likes',{post_id:id,user_id:D.me.id},'resolution=ignore-duplicates');
+  }catch(e){
+    if(was){add(D.liked,id);it.l++}else{del(D.liked,id);it.l=Math.max(0,it.l-1)}
+    if(it.kind==='reel')updReel(id);else render(false);handleErr(e);
+  }
+}
+async function toggleFollow(id,reel){
+  var was=has(D.following,id);
+  if(was)del(D.following,id);else add(D.following,id);
+  try{
+    if(was)await rest('DELETE','follows?follower=eq.'+D.me.id+'&followee=eq.'+id);
+    else await rest('POST','follows',{follower:D.me.id,followee:id},'resolution=ignore-duplicates');
+    toast(was?'Вы отписались от '+prof(id).name:'Вы подписались на '+prof(id).name+' ✨');
+  }catch(e){if(was)add(D.following,id);else del(D.following,id);handleErr(e)}
+  if(reel)$$('.reel').forEach(function(s){var r=findItem(s.dataset.r);if(r&&r.u===id)updReel(r.id)});else refresh();
+}
+async function openChat(id,meta){
+  stopTimers();
+  CH={id:id,msgs:[],loaded:false,meta:meta||null};view='chat';closeModal();render(true);window.scrollTo(0,0);
+  try{await loadMsgs();renderMsgs(true)}catch(e){handleErr(e)}
+  timers.push(setInterval(async function(){
+    if(view!=='chat')return;
+    try{if(await loadMsgs())renderMsgs(false)}catch(e){}
+  },3000));
+}
+function friendPicker(excl,multi){
+  var fr=friendIds().filter(function(i){return excl.indexOf(i)<0});
+  if(!fr.length)return '<div class="empty" style="padding:20px">'+(multi?'Нет друзей, которых можно добавить.':'Пока нет друзей для чата. Отправьте заявку через поиск в ленте.')+'</div>';
+  return '<div class="list">'+fr.map(function(id){var u=prof(id);
+    return multi?'<label class="pick">'+av(u,40)+'<span style="flex:1"><b>'+esc(u.name)+'</b><br><small style="color:var(--muted)">@'+esc(u.handle)+'</small></span><input type="checkbox" name="m" value="'+id+'"></label>'
+                :'<button class="pick" data-a="msgto" data-u="'+id+'">'+av(u,40)+'<span style="flex:1"><b>'+esc(u.name)+'</b><br><small style="color:var(--muted)">@'+esc(u.handle)+'</small></span><span class="chip pri">Написать</span></button>';
+  }).join('')+'</div>';
+}
+function copyText(txt){
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('Скопировано')},function(){toast('Не удалось скопировать')})}
+  else toast('Копирование недоступно');
+}
+function livePreview(el){
+  var e=ED,pa=$('#pvAv'),pc=$('#pvCover');
+  if(pa)pa.innerHTML=av(Object.assign({},D.me,{emoji:e.emoji,hue:e.hue}),64);if(pc)pc.style.background=grad(e.cover);
+  var f=$('form[data-form=profile]');
+  if(f){
+    $$('.emojis button',f).forEach(function(b){b.classList.toggle('on',b.dataset.v===e.emoji)});
+    $$('button[data-a=pick-h]',f).forEach(function(b){b.classList.toggle('on',+b.dataset.v===e.hue)});
+    $$('button[data-a=pick-c]',f).forEach(function(b){b.classList.toggle('on',+b.dataset.v===e.cover)});
+  }
+}
+var A={
+  nav:function(el){closeModal();go(el.dataset.v)},
+  ptab:function(el){ptab=el.dataset.t;render(false)},
+  follow:safe(async function(el){await toggleFollow(el.dataset.u,false)}),
+  friend:safe(async function(el){
+    var id=el.dataset.u;
+    try{
+      var r=await rest('POST','friend_requests',{from_id:D.me.id,to_id:id},'return=representation');
+      D.reqs.push(r[0]);toast('Заявка отправлена → '+prof(id).name);
+    }catch(e){
+      if(/23505|duplicate/i.test((e.code||'')+e.message)){await loadReqs();toast('Заявка уже существует')}else throw e;
+    }
+    refresh();
+  }),
+  cancelreq:safe(async function(el){var r=reqWith(el.dataset.u);if(!r)return;await rest('DELETE','friend_requests?id=eq.'+r.id);D.reqs=D.reqs.filter(function(x){return x.id!==r.id});toast('Заявка отменена');refresh()}),
+  unfriend:safe(async function(el){var r=reqWith(el.dataset.u);if(!r)return;await rest('DELETE','friend_requests?id=eq.'+r.id);D.reqs=D.reqs.filter(function(x){return x.id!==r.id});toast('Удалён(а) из друзей');refresh()}),
+  accept:safe(async function(el){var r=reqWith(el.dataset.u);if(!r)return;var j=await rest('PATCH','friend_requests?id=eq.'+r.id,{status:'accepted'},'return=representation');if(j&&j[0])r.status='accepted';toast('Теперь вы друзья с '+prof(el.dataset.u).name+' 💞');refresh()}),
+  decline:safe(async function(el){var r=reqWith(el.dataset.u);if(!r)return;await rest('DELETE','friend_requests?id=eq.'+r.id);D.reqs=D.reqs.filter(function(x){return x.id!==r.id});toast('Заявка отклонена');refresh()}),
+  like:function(el){toggleLike(el.dataset.p)},
+  comments:function(el){var id=el.dataset.p;openC[id]=!openC[id];if(openC[id]){render(false);openComments(id,false)}else render(false)},
+  share:function(el){var p=findItem(el.dataset.p);copyText(((p&&p.t)||'')+' — Pulse')},
+  user:function(el){var u=el.dataset.u;if(u)userModal(u)},
+  newpost:function(){composeModal('post')},
+  newreel:function(){composeModal('reel')},
+  editpost:function(el){var p=findItem(el.dataset.p);if(p)composeModal('post',p)},
+  editreel:function(el){var r=findItem(el.dataset.r);if(r){closeModal();composeModal('reel',r)}},
+  delpost:safe(async function(el){var p=findItem(el.dataset.p);await rest('DELETE','posts?id=eq.'+el.dataset.p);if(p&&p.path)removeObject(p.path);D.posts=D.posts.filter(function(x){return x.id!==el.dataset.p});toast('Пост удалён');refresh()}),
+  delreel:safe(async function(el){var p=findItem(el.dataset.r);await rest('DELETE','posts?id=eq.'+el.dataset.r);if(p&&p.path)removeObject(p.path);D.reels=D.reels.filter(function(x){return x.id!==el.dataset.r});closeModal();toast('Reels удалён');refresh()}),
+  pickmedia:function(){pickFile('image/*,video/mp4,video/webm,video/quicktime',handleFile)},
+  editmedia:function(){editDraft()},
+  rmmedia:function(){if(draft.own&&draft.url)URL.revokeObjectURL(draft.url);draft.k=null;draft.blob=null;draft.url='';draft.own=false;draft.dirty=false;draft.flt='none';draft.ov=null;drawDraft()},
+  pe:function(el){draft.emoji=el.dataset.v;$$('#pe .emojis button').forEach(function(b){b.classList.remove('on')});el.classList.add('on')},
+  close:function(){closeModal()},
+  closeov:function(el,e){if(e.target===el)closeModal()},
+  'pick-e':function(el){ED.emoji=el.dataset.v;livePreview(el)},
+  'pick-h':function(el){ED.hue=+el.dataset.v;livePreview(el)},
+  'pick-c':function(el){ED.cover=+el.dataset.v;livePreview(el)},
+  avphoto:function(){
+    pickFile('image/*',function(f){
+      normImg(f,1200).then(function(b){
+        openImageEditor(b,{aspect:1,lock:true,out:320},safe(async function(out){
+          toast('Загружаем фото…');
+          var path=await upload(out,'jpg','avatar-');
+          var old=pathFromUrl(D.me.photo_url),url=mediaUrl(path);
+          await rest('PATCH','profiles?id=eq.'+D.me.id,{photo_url:url});
+          D.me.photo_url=url;D.P[D.me.id]=D.me;if(old)removeObject(old);
+          toast('Фото профиля обновлено 📸');render(false);
+        }));
+      },function(){toast('Не удалось открыть фото')});
+    });
+  },
+  avremove:safe(async function(){var old=pathFromUrl(D.me.photo_url);await rest('PATCH','profiles?id=eq.'+D.me.id,{photo_url:null});D.me.photo_url=null;if(old)removeObject(old);toast('Фото убрано');render(false)}),
+  hue:function(el){S.hue=+el.dataset.v;saveCfg();applySettings();render(false)},
+  theme:function(el){S.theme=el.dataset.v;saveCfg();applySettings();render(false)},
+  export:function(){
+    try{
+      var data={exportedAt:new Date().toISOString(),email:sess&&sess.user&&sess.user.email,profile:D.me,posts:myItems(D.posts),reels:myItems(D.reels),following:D.following,friends:friendIds()};
+      var b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='pulse-data.json';document.body.appendChild(a);a.click();a.remove();toast('Файл сохранён');
+    }catch(e){toast('Не удалось экспортировать')}
+  },
+  delacct:function(){confirmModal('Аккаунт, публикации, комментарии и переписки будут удалены навсегда. Это нельзя отменить.','dodelacct')},
+  dodelacct:safe(async function(){
+    closeModal();toast('Удаляем аккаунт…');
+    var paths=[];myItems(D.posts).concat(myItems(D.reels)).forEach(function(p){if(p.path)paths.push(p.path)});
+    var ap=pathFromUrl(D.me.photo_url);if(ap)paths.push(ap);
+    await Promise.all(paths.map(function(p){return authedFetch(SB_URL+'/storage/v1/object/media/'+p,{method:'DELETE',headers:{}}).catch(function(){})}));
+    await rest('POST','rpc/delete_my_account',{});
+    try{await authCall('/logout',null,'POST',sess.access_token)}catch(e){}
+    forceLogout();toast('Аккаунт удалён');
+  }),
+  logout:async function(){try{await authCall('/logout',null,'POST',sess&&sess.access_token)}catch(e){}forceLogout()},
+  retry:function(){bootApp()},
+  /* Reels */
+  rfilter:function(el){CFG.reelsF=el.dataset.v;saveCfg();buildReels(false)},
+  rmute:function(){reelMuted=!reelMuted;$$('#reels video').forEach(function(v){v.muted=reelMuted});$('#rmute').innerHTML=icon(reelMuted?'mute':'vol')},
+  rlike:function(el){toggleLike(el.dataset.r)},
+  rfollow:function(el){toggleFollow(el.dataset.u,true)},
+  rcomments:function(el){openComments(el.dataset.r,true)},
+  rshare:function(el){var r=findItem(el.dataset.r);copyText(((r&&r.t)||'')+' — Pulse Reels')},
+  rmenu:function(el){
+    var id=el.dataset.r;
+    modal('<h2 style="margin:0 0 14px">Мой Reels</h2><div class="list"><button class="btn ghost" data-a="editreel" data-r="'+id+'">✏️ Редактировать</button><button class="btn ghost" data-a="delreel" data-r="'+id+'" style="color:#e0305a">🗑 Удалить</button></div>');
+  },
+  /* чаты */
+  newchat:function(){
+    modal('<h2 style="margin:0 0 6px">Новый чат</h2><p class="hint" style="margin:0 0 12px">Личные чаты доступны с друзьями.</p>'+friendPicker([],false));
+  },
+  msgto:safe(async function(el){
+    var id=el.dataset.u;
+    var cid=await rest('POST','rpc/start_dm',{other:id});
+    await loadChats();
+    await openChat(cid,{id:cid,kind:'dm',members:[D.me.id,id],title:null});
+  }),
+  openchat:function(el){openChat(el.dataset.c)},
+  chatback:function(){stopTimers();CH=null;go('chats')},
+  newgroup:function(){
+    modal('<h2 style="margin:0 0 12px">Новая группа</h2><form data-form="group"><input class="t" name="title" placeholder="Название группы" maxlength="60" required style="margin-bottom:12px"><div class="lbl">Участники (из ваших друзей)</div>'+friendPicker([],true)+'<div class="err" id="gerr"></div><button class="btn" type="submit" style="width:100%;margin-top:14px">Создать группу</button></form>');
+  },
+  ginfo:function(){
+    var c=D.chats.filter(function(x){return x.id===CH.id})[0]||CH.meta;if(!c)return;
+    var h='<h2 style="margin:0 0 4px">'+esc(c.title||'Группа')+'</h2><p class="hint" style="margin:0 0 12px">Участников: '+c.members.length+'</p><div class="list">';
+    c.members.forEach(function(id){var u=prof(id);h+='<div class="row glass">'+av(u,40)+'<div class="who"><div><b>'+esc(u.name)+(id===D.me.id?' (вы)':'')+'</b><small>@'+esc(u.handle)+'</small></div></div></div>'});
+    h+='</div><button class="btn ghost" data-a="gadd" style="width:100%;margin-top:14px">＋ Добавить участников</button><button class="btn ghost" data-a="gleave" style="width:100%;margin-top:10px;color:#e0305a">Покинуть группу</button>';
+    modal(h);
+  },
+  gadd:function(){
+    var c=D.chats.filter(function(x){return x.id===CH.id})[0]||CH.meta;if(!c)return;
+    modal('<h2 style="margin:0 0 12px">Добавить в группу</h2><form data-form="gadd">'+friendPicker(c.members,true)+'<div class="err" id="gerr"></div><button class="btn" type="submit" style="width:100%;margin-top:14px">Добавить</button></form>');
+  },
+  gleave:function(){confirmModal('Вы перестанете получать сообщения этой группы.','dogleave')},
+  dogleave:safe(async function(){
+    var id=CH.id;await rest('DELETE','chat_members?chat_id=eq.'+id+'&user_id=eq.'+D.me.id);
+    D.chats=D.chats.filter(function(c){return c.id!==id});closeModal();toast('Вы покинули группу');stopTimers();CH=null;go('chats');
+  }),
+  legal:function(el){legalModal(el.dataset.v)},
+  legalclose:function(){$('#modal2').innerHTML=''},
+  legalov:function(el,e){if(e.target===el)$('#modal2').innerHTML=''},
+  /* авторизация */
+  authtab:function(el){authStep=el.dataset.v;AF=null;renderAuth()},
+  authback:function(){authStep=AF&&AF.mode==='recovery'?'forgot':'reg';AF=null;renderAuth()},
+  eye:function(el){var i=el.parentNode.querySelector('input');i.type=i.type==='password'?'text':'password'},
+  chpw:function(){modal('<h2 style="margin:0 0 10px">Сменить пароль</h2><form data-form="chpw" novalidate><div class="pw"><input class="t" name="cp" type="password" placeholder="Текущий пароль" autocomplete="current-password"><button type="button" data-a="eye">👁</button></div><div class="pw"><input class="t" name="np" type="password" placeholder="Новый пароль" autocomplete="new-password"><button type="button" data-a="eye">👁</button></div><div class="pw"><input class="t" name="np2" type="password" placeholder="Повторите новый" autocomplete="new-password"><button type="button" data-a="eye">👁</button></div><div class="err" id="cperr"></div><button class="btn" type="submit">Сохранить</button></form>')},
+  skippw:safe(async function(){await finishAuth()}),
+  resend:safe(async function(){
+    if(!AF)return;
+    if(AF.mode==='recovery')await authCall('/otp',{email:AF.email,create_user:false});
+    else await authCall('/resend',{type:'signup',email:AF.email});
+    AF.tries=0;renderAuth();toast('Новый код отправлен ✉️');
+  })
+};
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-a]');
+  if(!el){
+    var rf=e.target.closest('.rframe');
+    if(rf&&!e.target.closest('button,a,input'))toggleReel(rf.parentNode);
+    return;
+  }
+  var fn=A[el.dataset.a];if(fn){fn(el,e)}
+});
+document.addEventListener('dblclick',function(e){
+  var rf=e.target.closest('.rframe');if(!rf||e.target.closest('button'))return;
+  var s=rf.parentNode,id=s.dataset.r;
+  var r=rf.getBoundingClientRect(),h=document.createElement('div');h.className='hpop';h.textContent='❤️';h.style.left=(e.clientX-r.left)+'px';h.style.top=(e.clientY-r.top)+'px';rf.appendChild(h);setTimeout(function(){h.remove()},850);
+  if(!has(D.liked,id))toggleLike(id);
+});
+document.addEventListener('change',function(e){
+  var k=e.target.dataset&&e.target.dataset.k;if(!k)return;
+  var v=e.target.type==='checkbox'?e.target.checked:+e.target.value;
+  if(k==='filterOn'){CFG.filterOn=v;saveCfg();render(false);return}
+  var key=k.split('.')[1];S[key]=v;saveCfg();applySettings();
+  if(key==='hideLikes')render(false);
+});
+document.addEventListener('input',function(e){
+  var t=e.target,k=t.dataset&&t.dataset.k;
+  if(k==='S.blur'){S.blur=+t.value;document.documentElement.style.setProperty('--blur',S.blur+'px');saveCfg();return}
+  if(t.id==='q'){
+    sq=t.value;clearTimeout(sT);
+    if(!sq.trim()){SR={list:[],loading:false};$('#fbody').innerHTML=feedBody();return}
+    SR.loading=true;$('#fbody').innerHTML=searchRes();sT=setTimeout(runSearch,300);return;
+  }
+  if(t.name==='pw'&&$('#pwbar')){
+    var s=pwScore(t.value),cols=['#e0305a','#e0305a','#f0a030','#7cc65a','#34d27b'],txt=['Слишком простой','Слабый','Средний','Хороший','Отличный'];
+    var b=$('#pwbar');b.style.width=(t.value?(s+1)*20:0)+'%';b.style.background=cols[s];$('#pwtxt').textContent=t.value?txt[s]:'Надёжный пароль: буквы, цифры и символы';
+  }
+  if(t.name==='c'&&t.closest('form')&&t.closest('form').dataset.form==='code'){t.value=t.value.replace(/\D/g,'')}
+});
+document.addEventListener('submit',async function(e){
+  var f=e.target,type=f.dataset.form;if(!type)return;e.preventDefault();
+  if(f.dataset.busy)return;
+  var fd=new FormData(f);
+  try{
+    if(type==='comment'||type==='rcomment'){
+      var t=(fd.get('t')||'').trim();if(!t)return;
+      var id=f.dataset.p;busy(f,true);
+      var r=await rest('POST','comments',{post_id:id,user_id:D.me.id,body:t},'return=representation');
+      D.C[id]=(D.C[id]||[]);D.C[id].push(r[0]);var it=findItem(id);if(it)it.c++;
+      if(type==='rcomment'){reelCommentsModal(id);updReel(id)}else render(false);
+      return;
+    }
+    if(type==='msg'){
+      var tx=(fd.get('t')||'').trim();if(!tx||!CH)return;
+      f.reset();
+      var m=await rest('POST','messages',{chat_id:CH.id,sender:D.me.id,body:tx},'return=representation');
+      if(m&&m[0]){CH.msgs.push(m[0]);renderMsgs(true)}
+      return;
+    }
+    if(type==='compose'){busy(f,true);await submitCompose(fd);busy(f,false);return}
+    if(type==='profile'){
+      var h=(fd.get('handle')||'').trim().replace(/^@/,'').toLowerCase();
+      if(!/^[a-z0-9._]{3,24}$/.test(h)){toast('Ник: 3–24 символа, латиница, цифры, точка и _');return}
+      var nm=(fd.get('name')||'').trim();if(!nm){toast('Введите имя');return}
+      busy(f,true);
+      var row={name:nm,handle:h,bio:(fd.get('bio')||'').trim(),emoji:ED.emoji,hue:ED.hue,cover:ED.cover};
+      await rest('PATCH','profiles?id=eq.'+D.me.id,row);
+      Object.assign(D.me,row);D.P[D.me.id]=D.me;ED=null;toast('Профиль обновлён 💖');render(false);return;
+    }
+    if(type==='group'){
+      var title=(fd.get('title')||'').trim(),ms=fd.getAll('m');
+      if(!title){return}
+      if(!ms.length){var ge=$('#gerr');if(ge)ge.textContent='Выберите хотя бы одного друга';return}
+      busy(f,true);
+      var cid=await rest('POST','rpc/create_group',{title:title,members:ms});
+      await loadChats();toast('Группа создана 👥');await openChat(cid,{id:cid,kind:'group',title:title,members:[D.me.id].concat(ms)});return;
+    }
+    if(type==='gadd'){
+      var ms2=fd.getAll('m');if(!ms2.length){var ge2=$('#gerr');if(ge2)ge2.textContent='Выберите хотя бы одного друга';return}
+      busy(f,true);
+      await rest('POST','rpc/add_group_members',{cid:CH.id,members:ms2});
+      await loadChats();closeModal();toast('Участники добавлены');renderMsgs(false);render(false);return;
+    }
+    /* ----- авторизация ----- */
+    if(type==='reg'){
+      var un=(fd.get('email')||'').trim().toLowerCase(),pw=fd.get('pw')||'',pw2=fd.get('pw2')||'',nm2=(fd.get('name')||'').trim();
+      if(!/^[a-z0-9_]{3,18}$/.test(un))return aerr('Имя пользователя: 3–18 символов, только a-z, 0-9 и _');
+      var em=un+FAKE;
+      if(pw.length<8)return aerr('Пароль должен быть не короче 8 символов');
+      if(!/\d/.test(pw)||!/[A-Za-zА-Яа-я]/.test(pw))return aerr('Добавьте в пароль и буквы, и цифры');
+      if(BADPW.indexOf(pw.toLowerCase())>-1||pw.toLowerCase().indexOf(un)>-1)return aerr('Слишком простой пароль — придумайте другой');
+      if(pw!==pw2)return aerr('Пароли не совпадают');
+      busy(f,true);await doReg(nm2,em,pw);return;
+    }
+    if(type==='login'){
+      var em2=(fd.get('email')||'').trim().toLowerCase(),pw3=fd.get('pw')||'';
+      if(!em2||!pw3)return aerr('Введите имя пользователя и пароль');
+      busy(f,true);await doLogin(em2,pw3);busy(f,false);return;
+    }
+    if(type==='forgot'){
+      var em3=(fd.get('email')||'').trim().toLowerCase();
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em3))return aerr('Введите корректный адрес почты');
+      busy(f,true);
+      await authCall('/otp',{email:em3,create_user:false});
+      AF={email:em3,mode:'recovery',tries:0};authStep='code';renderAuth();return;
+    }
+    if(type==='newpw'){
+      var p1=fd.get('pw')||'',p2=fd.get('pw2')||'';
+      if(p1.length<8)return aerr('Пароль должен быть не короче 8 символов');
+      if(p1!==p2)return aerr('Пароли не совпадают');
+      busy(f,true);await authCall('/user',{password:p1},'PUT',sess.access_token);toast('Пароль обновлён ✅');await finishAuth();return;
+    }
+    if(type==='enroll'||type==='mfa'){busy(f,true);await mfaVerify((fd.get('c')||'').trim());busy(f,false);return}
+    if(type==='chpw'){
+      var cp=fd.get('cp')||'',np=fd.get('np')||'',np2=fd.get('np2')||'';
+      var ce=$('#cperr');
+      function ce_(t){if(ce)ce.textContent=t}
+      if(np.length<8||!/\d/.test(np)||!/[A-Za-zА-Яа-я]/.test(np))return ce_('Новый пароль: минимум 8 символов, буквы и цифры');
+      if(np!==np2)return ce_('Пароли не совпадают');
+      busy(f,true);
+      try{await authCall('/token?grant_type=password',{email:sess.user.email,password:cp})}catch(e){busy(f,false);return ce_('Текущий пароль неверный')}
+      await authCall('/user',{password:np},'PUT',sess.access_token);
+      closeModal();toast('Пароль изменён ✅');return;
+    }
+    if(type==='code'){await verifyCode((fd.get('c')||'').trim());return}
+  }catch(err){
+    if(['reg','login','forgot','newpw','code','enroll','mfa'].indexOf(type)>-1)aerr(errText(err));else handleErr(err);
+    busy(f,false);
+  }
+  if(f.isConnected)busy(f,false);
+});
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  if($('#modal2').firstChild)closeEd();else closeModal();
+});
+if(mq&&mq.addEventListener)mq.addEventListener('change',applySettings);
+
+/* ================= ЗАПУСК ================= */
+function showSetup(e){
+  stopTimers();
+  $('#view').innerHTML='<div class="glass setup"><h2 style="margin-top:0">⚙️ База данных ещё не настроена</h2>'+
+   '<p>Сайт подключился к Supabase, но не нашёл нужные таблицы. Откройте <b>Supabase → SQL Editor</b>, вставьте содержимое файла <code>supabase-setup.sql</code> и нажмите <b>Run</b>. Затем нажмите кнопку ниже.</p>'+
+   '<p class="hint">Техническая причина: '+esc((e&&e.message)||'')+'</p><button class="btn" data-a="retry">Проверить снова</button></div>';
+  hideAuth();document.body.classList.remove('inreels','inchat');
+}
+async function bootApp(){
+  try{
+    $('#view').innerHTML='<div class="glass empty" style="margin-top:40px"><big>⏳</big>Загружаем Pulse…</div>';
+    var uid=sess.user.id;
+    var r=await Promise.all([
+      rest('GET','profiles?select='+PF+'&id=eq.'+uid),
+      rest('GET','follows?select=followee&follower=eq.'+uid+'&limit=1000'),
+      rest('GET','friend_requests?select=*&or=(from_id.eq.'+uid+',to_id.eq.'+uid+')'),
+      rest('GET','likes?select=post_id&user_id=eq.'+uid+'&limit=2000')
+    ]);
+    var me=r[0][0];
+    if(!me){ // профиль не создался триггером — создаём сами
+      var base=((sess.user.email||'user').split('@')[0].toLowerCase().replace(/[^a-z0-9._]/g,'')||'user').slice(0,16);
+      if(base.length<3)base='user'+Math.floor(Math.random()*9000+1000);
+      var ins=await rest('POST','profiles',{id:uid,handle:base+Math.floor(Math.random()*9000+1000),name:(sess.user.user_metadata&&sess.user.user_metadata.name)||base},'return=representation');
+      me=ins[0];
+    }
+    D.me=me;D.P={};D.P[me.id]=me;
+    D.following=r[1].map(function(x){return x.followee});
+    D.reqs=r[2];D.liked=r[3].map(function(x){return x.post_id});
+    D.posts=[];D.reels=[];D.chats=[];D.C={};D.loaded={};
+    await ensureProfiles(D.following.concat(D.reqs.map(function(q){return q.from_id===uid?q.to_id:q.from_id})));
+    if(!CFG.rememberFilter)CFG.filterOn=true;
+    render(true);
+    refreshData(view);
+  }catch(e){
+    if(isSetupErr(e))showSetup(e);
+    else if(/Сессия истекла/.test(e.message||''))return;
+    else{
+      $('#view').innerHTML='<div class="glass setup"><h2 style="margin-top:0">Не удалось загрузить</h2><p>'+esc(errText(e))+'</p><button class="btn" data-a="retry">Повторить</button> <button class="btn ghost" data-a="logout">Выйти</button></div>';
+    }
+  }
+}
+applySettings();
+if(sess&&sess.access_token&&jwtAal(sess.access_token)==='aal2'){bootApp()}
+else if(sess&&sess.access_token){showAuth('login');(async function(){try{await refreshSess();await mfaGate()}catch(e){clearSess();showAuth('login')}})()}
+else showAuth('login');
+})();
+</script>
+</body>
+</html>
